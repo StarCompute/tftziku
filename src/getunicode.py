@@ -4,7 +4,7 @@ e = '、。・ˉˇ〃々―～‖…‘’“”〔〕〈〉《》「」『』�
 zimu = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
 s = ""
 e = e+zimu
-
+e="你真好看啊!"
 
 # ss=""
 # for s1 in e:
@@ -32,7 +32,7 @@ head_str_unicode = ""
 str_pix_content = ""
 strcontent = ""
 strlen = len(e)
-head_fontsize = 16
+head_fontsize = 12
 print(strlen)
 strlen_hex = hex(strlen)
 print(strlen_hex)
@@ -153,7 +153,7 @@ font_content = head_unicode_content+str_pix_content
 # # print(font_content)
 # from io import *
 
-f=open("d:/x.font","w")
+f=open("d:/t.font","w")
 f.write(font_content)
 f.close()
 
