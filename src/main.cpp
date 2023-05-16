@@ -32,7 +32,7 @@ void DrawPixStr(int x, int y, String strUni, int fontsize)
 
 void setup()
 {
-  
+
   Serial.begin(115200);
   Serial.println("kakka");
   Serial.println(esp_get_free_heap_size());
@@ -41,13 +41,13 @@ void setup()
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN);
 
-   LittleFS.begin();
-   
+  LittleFS.begin();
+
   // tft.loadFont("simsun12",LittleFS);
-  // tft.loadFont(AA_FONT_SMALL, ); 
+  // tft.loadFont(AA_FONT_SMALL, );
   // // tft.setTextSize(12);
   // // tft.setCursor(20, 20);
-    // long x=millis();
+  // long x=millis();
   // tft.println(" i am xuankongi am xuankongi am xuankongi am xuankongi am xuankong");
   //   tft.println(" 这是一个自定义汉字软字库的显示，包括了7千个常用汉字，满足了日常的使用。");
   // Serial.print("TFT:");
@@ -64,7 +64,6 @@ void setup()
   // getUnicodeFromUTF82("你好hello");
   // return;
 
- 
   // bool b1 = LittleFS.exists("/1.txt");
   // bool b2 = LittleFS.exists("/kaka/kaka.txt");
   // bool b3 = LittleFS.exists("/asdf.txt");
@@ -81,18 +80,17 @@ void setup()
   Serial.println(file.position());
   file.read(buf_fontsize, 2);
 
-
   // Serial.println((String)*buf_total_str);
 
   // String s1=(char)buf_total_str;
- 
+
   // String s=file.readString();
   // for (int i=0;i<6;i++){
   //   tft.println(buf_total_str[i]);
   //   Serial.println(buf_total_str[i]);
   //   s1+=(char)buf_total_str[i];
   // }
-   String s1 = getStringFromChars(buf_total_str, 6);
+  String s1 = getStringFromChars(buf_total_str, 6);
   String s2 = getStringFromChars(buf_fontsize, 2);
   int total_font_cnt = strtoll(s1.c_str(), NULL, 16);
   int font_size = s2.toInt();
@@ -102,25 +100,17 @@ void setup()
   Serial.println(font_size);
   int font_unicode_cnt = total_font_cnt * 5;
   String font_unicode = "";
-  uint8_t* buf_total_str_unicode;
+  uint8_t *buf_total_str_unicode;
   int font_page = int(font_size * font_size / 8 * 2);
 
   uint8_t buf_seek_pixdata[font_page];
 
+  buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
 
-
-  buf_total_str_unicode=(uint8_t *) malloc(font_unicode_cnt);
-
-
-
-
-
-
-
- long readtime = millis();
+  long readtime = millis();
 
   file.read(buf_total_str_unicode, font_unicode_cnt);
-  String strUnicodes=getStringFromChars2(buf_total_str_unicode,font_unicode_cnt);
+  String strUnicodes = getStringFromChars2(buf_total_str_unicode, font_unicode_cnt);
   free(buf_total_str_unicode);
   // Serial.println(kk);
   // int ddd=kk.indexOf("u97af");
@@ -135,6 +125,7 @@ void setup()
   // String teststr = "中华人民共和国中央人民政府";
   String teststr = "这是一个自定义汉字软字库的显示，包括了7千个常用汉字，满足了日常的使用。";
 
+  //  teststr = "你好吗中国";
   // 人民共和国中央人民政府
   // teststr = "ABC";
 
@@ -165,7 +156,7 @@ void setup()
     // Serial.println(i);
     String _str = "u" + strUnicode.substring(i, i + 4);
     // Serial.println(_str);
-  
+
     file.seek(8);
 
     //     getPixDataFromHex("0100010001003ff8");
@@ -173,17 +164,16 @@ void setup()
     //     return;
     // file.find(_str.c_str());
     String asd = "";
-    int readFileSize=5 * 400;
+    int readFileSize = 5 * 400;
     uint8_t buf_read_pixdata[readFileSize];
-  
 
     // int cnt_page = (total_font_cnt + 6) / 6;'
     int cnt_page = total_font_cnt / 400 + 1;
     int uIdx = 0;
     beginTime = millis();
 
-int p=strUnicodes.indexOf(_str);
-uIdx =  p / 5;
+    int p = strUnicodes.indexOf(_str);
+    uIdx = p / 5;
 
     // for (int m = 0; m < cnt_page; m++)
     // {
@@ -208,7 +198,7 @@ uIdx =  p / 5;
     file.seek(pixbeginidx);
     file.read(buf_seek_pixdata, font_page);
     // file.readString
-    String su = getStringFromChars2(buf_seek_pixdata, font_page);
+    String su = getStringFromChars(buf_seek_pixdata, font_page);
     // Serial.println(file.position());
 
     // Serial.println(su);
@@ -253,6 +243,18 @@ uIdx =  p / 5;
   // }
   file.close();
   LittleFS.end();
+  String tt=getPixBinStrFromString("这是一个自定义汉字软字库的显");
+  Serial.println(tt.length());
+  for(int i=0;i<tt.length();i++){
+    // if(int(i%font_size)==0){
+    //   Serial.print("\r\n");
+    // }
+    if(i%16==0)Serial.print("\r\n");
+
+    if(tt[i]=='0')Serial.print(' ');
+    if(tt[i]=='1')Serial.print(tt[i]);
+    // Serial.print(tt[i]);
+  }
 }
 
 void loop()

@@ -8,3 +8,9 @@ int *getBin(int Dec);
 int *getBin2(uint8_t data);
 String getPixDataFromHex(String s);
 void DrawStr(int x,int y,String str);
+
+
+int getStrCountFromFontFile(uint8_t * bs);
+int getFontSizeFromFontFile(uint8_t * bs);
+
+String getPixBinStrFromString(String strDisplay);
