@@ -209,7 +209,7 @@ String getPixBinStrFromString(String strDisplay)
     Serial.println(strUnicode.length());
     int unicode_begin_idx = 6 + 2 + total_font_cnt * 5;
     Serial.println("begin");
-     Serial.println(font_page);
+    //  Serial.println(font_page);
     String ff = "";
     String ret = "";
     for (int i = 0; i < strUnicode.length(); i = i + 4)
