@@ -180,9 +180,9 @@ String getPixBinStrFromString(String strDisplay)
     File file = LittleFS.open("/x.font");
     static uint8_t buf_total_str[6];
     static uint8_t buf_fontsize[2];
-    Serial.println(file.position());
+    // Serial.println(file.position());
     file.read(buf_total_str, 6);
-    Serial.println(file.position());
+    // Serial.println(file.position());
     file.read(buf_fontsize, 2);
 
     String s1 = getStringFromChars(buf_total_str, 6);
@@ -191,9 +191,9 @@ String getPixBinStrFromString(String strDisplay)
     int font_size = s2.toInt();
 
 
-    Serial.println(s1);
-    Serial.println(total_font_cnt);
-    Serial.println(font_size);
+    // Serial.println(s1);
+    // Serial.println(total_font_cnt);
+    // Serial.println(font_size);
     int font_unicode_cnt = total_font_cnt * 5;
     String font_unicode = "";
     uint8_t *buf_total_str_unicode;
@@ -206,9 +206,9 @@ String getPixBinStrFromString(String strDisplay)
     String strUnicodes = getStringFromChars2(buf_total_str_unicode, font_unicode_cnt);
     free(buf_total_str_unicode);
     String strUnicode = getUnicodeFromUTF82(strDisplay);
-    Serial.println(strUnicode.length());
+    // Serial.println(strUnicode.length());
     int unicode_begin_idx = 6 + 2 + total_font_cnt * 5;
-    Serial.println("begin");
+    // Serial.println("begin");
     //  Serial.println(font_page);
     String ff = "";
     String ret = "";
