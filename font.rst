@@ -121,3 +121,91 @@
 .. 注意:: 英文字符的特殊性暂未处理。
 
     由于英文基本都是半角符号，中文是全角符号，理论上英文的输出只有中文的一半，但是本字库暂时未处理英文的半角输出问题，全部是全角输出，后续再进行整理。
+
+示例代码：
+************************************
+
+在终端输出
+============================
+
+.. code-block:: c
+    String strBinDisplay = getPixBinStrFromString("这是一个软字体的显示你看看再多如何显示出来啊！你说你项羽突然的自我伍佰向天再借五百年");
+
+    // 下面代码在终端输出文字点阵。
+    Serial.println(strBinDisplay.length());
+    for (int i = 0; i < strBinDisplay.length(); i++)
+    {
+        if (i % 16 == 0)
+        Serial.print("\r\n");
+        if (strBinDisplay[i] == '0')
+        Serial.print(' ');
+        if (strBinDisplay[i] == '1')
+        Serial.print(strBinDisplay[i]);
+    }
+
+
+终端显示如下：
+
+   1
+   1    111111  
+   1         1  
+   1        1   
+111111     1
+  1  1    1
+  1  1    1
+  1  1 11111111
+  1  1    1     
+ 1  1     1
+  1 1     1
+   1      1
+  1 1     1
+ 1   1    1
+1    1  1 1
+         1
+   1     1
+   1     1
+   1     1      
+1111111  11111
+  1     1    1
+  1 1   1   1
+ 1  1  1  1
+ 111111   1
+    1     1
+    1    1 1
+    111  1 1
+11111    1 1
+ 1  1   1   1
+    1   1   1
+    1  1     1
+    1 1       1
+
+
+通过单片机在tft屏幕显示
+============================
+
+.. code-block:: c
+    // 下面代码在TFT屏幕输出文字
+    int pX = 16;
+    int pY = 0;
+    int fontsize=16; //字号
+    int amountDisplay=10; //每行显示多少汉字
+    int singleStrPixsAmount=fontsize*fontsize;
+    for (int i = 0; i < strBinDisplay.length(); i++)
+    {
+        // 这里必须有特别的说明，每个字符的像素点总数是singleStrPixsAmount=fontsize*fontsize,如果是16号字体就是256个；
+        // 每行显示10个字，那么他们到一点阶段就必须换行，x坐标归0，y坐标必须加上字体对应的像素
+        // 对于pX,每显示fontsize个像素后就必须字体归到起始点，注意每显示n字符后，这个起始点就必须加上fontsize*n这个起始值
+        // 同时对于换行也必须处理。
+
+        pX=int(i%fontsize)+int(i/(singleStrPixsAmount))*fontsize-int(i/(singleStrPixsAmount*amountDisplay))*fontsize*amountDisplay;
+
+        // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
+        pY =int((i-int(i/singleStrPixsAmount)*singleStrPixsAmount)/fontsize)+int(i/(singleStrPixsAmount*amountDisplay))*fontsize;
+
+        if (strBinDisplay[i] == '1')
+        {
+        tft.drawPixel(pX, pY, TFT_GREEN);
+        }
+    }
+
+

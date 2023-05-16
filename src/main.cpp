@@ -29,7 +29,7 @@ void setup()
   tft.setTextColor(TFT_GREEN);
 
 
-  String strBinDisplay = getPixBinStrFromString("这是一个软字体的显示你看看再多如何显示出来啊！你说你项羽突然的自我伍佰向天再借五百年");
+  String strBinDisplay = getPixBinStrFromString("好软");
 
   // 下面代码在终端输出文字点阵。
   Serial.println(strBinDisplay.length());
