@@ -1,9 +1,9 @@
 #include <Arduino.h>
 // #include "simsun.h"
-#include "painlessMesh.h"
+// #include "painlessMesh.h"
 #include <TFT_eSPI.h>
 #include <LittleFS.h>
-#include "fileo.h"
+// #include "fileo.h"
 // #include "FS.h"
 #include "common.h"
 
@@ -34,8 +34,8 @@ void setup()
 {
 
   Serial.begin(115200);
-  Serial.println("kakka");
-  Serial.println(esp_get_free_heap_size());
+  // Serial.println("kakka");
+  // Serial.println(esp_get_free_heap_size());
   tft.begin();
   tft.setRotation(1);
   tft.fillScreen(TFT_BLACK);

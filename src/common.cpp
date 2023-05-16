@@ -46,7 +46,7 @@ int getFontSizeFromFontFile(uint8_t *bufs)
 
 String getUnicodeFromUTF82(String s)
 {
-    Serial.println(s.length());
+    // Serial.println(s.length());
     // 32-127
     char character[s.length()];
     String string_to_hex = "";
@@ -74,7 +74,7 @@ String getUnicodeFromUTF82(String s)
             i = i + 2;
         }
     }
-    Serial.println(string_to_hex);
+    // Serial.println(string_to_hex);
     return string_to_hex;
 }
 
@@ -107,7 +107,7 @@ String getUnicodeFromUTF8(String s)
     // string_to_hex += String(character[1], HEX);
     // Serial.println(character[0]);
     // Serial.println(character[1]);
-    Serial.println(string_to_hex);
+    // Serial.println(string_to_hex);
     return string_to_hex;
 }
 
