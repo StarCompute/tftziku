@@ -262,21 +262,26 @@ void setup()
   int pX = 0;
   int pY = 0;
   int fontsize=16;
-  int amountDisplay=10;
+  int amountDisplay=8;
   int singleStrPixsAmount=fontsize*fontsize;
   for (int i = 0; i < strBinDisplay.length(); i++)
   {
     // 这里必须有特别的说明，每个字符的像素点总数是singleStrPixsAmount=fontsize*fontsize,如果是16号字体就是256个；
     // 每行显示10个字，那么他们到一点阶段就必须换行，x坐标归0，y坐标必须加上字体对应的像素
+    // 对于pX,每显示fontsize个像素后就必须字体归到起始点，注意每显示n字符后，这个起始点就必须加上fontsize*n这个起始值
+    // 同时对于换行也必须处理。
 
     pX=int(i%fontsize)+int(i/(singleStrPixsAmount))*fontsize-int(i/(singleStrPixsAmount*amountDisplay))*fontsize*amountDisplay;
-    pY =int((i-int(i/singleStrPixsAmount)*singleStrPixsAmount)/16)+int(i/singleStrPixsAmount*amountDisplay)*16;
+    // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
+
+    pY =int((i-int(i/singleStrPixsAmount)*singleStrPixsAmount)/16)+int(i/(singleStrPixsAmount*amountDisplay))*16;
+    //    pX=int(i%16)+int(i/(16*16))*16-int(i/2560)*160;
+    //    pY =int((i-int(i/256)*256)/16)+int(i/2560)*16;
     if (strBinDisplay[i] == '1')
     {
       tft.drawPixel(pX, pY, TFT_GREEN);
     }
   }
-  tft.drawPixel(20, 40, TFT_BLUE);
 }
 
 void loop()
