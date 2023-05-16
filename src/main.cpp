@@ -244,29 +244,34 @@ void setup()
   // file.close();
   // LittleFS.end();
 
-  String tt = getPixBinStrFromString("这是一个软字体的显示你看看再多如何显示出来啊！你说你项羽突然的自我伍佰向天再借五百年");
+  String strBinDisplay = getPixBinStrFromString("这是一个软字体的显示你看看再多如何显示出来啊！你说你项羽突然的自我伍佰向天再借五百年");
 
   // 下面代码在终端输出文字点阵。
   // Serial.println(tt.length());
-  for (int i = 0; i < tt.length(); i++)
-  {
-    if (i % 16 == 0)
-      Serial.print("\r\n");
-    if (tt[i] == '0')
-      Serial.print(' ');
-    if (tt[i] == '1')
-      Serial.print(tt[i]);
-  }
+  // for (int i = 0; i < strBinDisplay.length(); i++)
+  // {
+  //   if (i % 16 == 0)
+  //     Serial.print("\r\n");
+  //   if (strBinDisplay[i] == '0')
+  //     Serial.print(' ');
+  //   if (strBinDisplay[i] == '1')
+  //     Serial.print(strBinDisplay[i]);
+  // }
 
   // 下面代码在TFT屏幕输出文字
   int pX = 0;
   int pY = 0;
-  int line = 1;
-  for (int i = 0; i < tt.length(); i++)
+  int fontsize=16;
+  int amountDisplay=10;
+  int singleStrPixsAmount=fontsize*fontsize;
+  for (int i = 0; i < strBinDisplay.length(); i++)
   {
-    pX=int(i%16)+int(i/(16*16))*16-int(i/2560)*160;
-    pY =int((i-int(i/256)*256)/16)+int(i/2560)*16;
-    if (tt[i] == '1')
+    // 这里必须有特别的说明，每个字符的像素点总数是singleStrPixsAmount=fontsize*fontsize,如果是16号字体就是256个；
+    // 每行显示10个字，那么他们到一点阶段就必须换行，x坐标归0，y坐标必须加上字体对应的像素
+
+    pX=int(i%fontsize)+int(i/(singleStrPixsAmount))*fontsize-int(i/(singleStrPixsAmount*amountDisplay))*fontsize*amountDisplay;
+    pY =int((i-int(i/singleStrPixsAmount)*singleStrPixsAmount)/16)+int(i/singleStrPixsAmount*amountDisplay)*16;
+    if (strBinDisplay[i] == '1')
     {
       tft.drawPixel(pX, pY, TFT_GREEN);
     }
@@ -278,12 +283,4 @@ void loop()
 {
   delay(1);
 }
-
-// 关于字模字库文件格式的设想
-
-// 000000 6个16进制，设定字库对应文字的个数。
-// 00 设定字模像素值，例如12，16 使用16进制存储 ,由于实际使用范围有限，只考虑12，16，24号字体和之内的字体，每个对应用8的倍数字节来表示。例如12，13，14号字体都用XX来表示，不足的地方补0
-// AAAABBBB 连续文字对应的unicode编码。
-// 一个字符对应128个字符，32个两位16进制编码，每个字符对应的长度受制于点阵像素值。不同点阵数单个字符对应的16进制编码数量长度不一致
-// 00080012002400480090012002400480024001200090004800240012000800000008001200240048009001200240048002400120009000480024001200080000
-// 0x0008,0x0012,0x0024,0x0048,0x0090,0x0120,0x0240,0x0480,0x0240,0x0120,0x0090,0x0048,0x0024,0x0012,0x0008,0x0000,0x0008,0x0012,0x0024,0x0048,0x0090,0x0120,0x0240,0x0480,0x0240,0x0120,0x0090,0x0048,0x0024,0x0012,0x0008,0x0000,
+  
