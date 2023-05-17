@@ -13,4 +13,4 @@ void DrawStr(int x,int y,String str);
 int getStrCountFromFontFile(uint8_t * bs);
 int getFontSizeFromFontFile(uint8_t * bs);
 
-String getPixBinStrFromString(String strDisplay);
+String getPixBinStrFromString(String displayString,String fontPath);

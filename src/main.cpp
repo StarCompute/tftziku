@@ -29,7 +29,7 @@ void setup()
   tft.setTextColor(TFT_GREEN);
 
 
-  String strBinDisplay = getPixBinStrFromString("好软");
+  String strBinDisplay = getPixBinStrFromString("好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。","/x.font");
 
   // 下面代码在终端输出文字点阵。
   Serial.println(strBinDisplay.length());

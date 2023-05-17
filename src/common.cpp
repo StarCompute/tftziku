@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 
+// 转化字符数组为字符串
 String getStringFromChars(uint8_t *bs, int l)
 {
     String ret;
@@ -14,6 +15,8 @@ String getStringFromChars(uint8_t *bs, int l)
     }
     return ret;
 }
+
+// 转化字符数组为字符串，下面这种方法看起来最简单，但是末尾多了一个尾巴。
 String getStringFromChars2(uint8_t *bs, int l)
 {
     String ret;
@@ -44,6 +47,7 @@ int getFontSizeFromFontFile(uint8_t *bufs)
     return strFontSize.toInt();
 }
 
+// 把utf8编码字符转unicode编码
 String getUnicodeFromUTF82(String s)
 {
     // Serial.println(s.length());
@@ -78,39 +82,40 @@ String getUnicodeFromUTF82(String s)
     return string_to_hex;
 }
 
-String getUnicodeFromUTF8(String s)
-{
+// String getUnicodeFromUTF8(String s)
+// {
 
-    char buffer[s.length()];
-    strcpy(buffer, s.c_str());
-    int BSIZE = (sizeof(buffer) / 3);
-    // int BSIZE = s.length();
-    char character[BSIZE * 2];
-    // Serial.println(BSIZE);
-    String string_to_hex = "";
+//     char buffer[s.length()];
+//     strcpy(buffer, s.c_str());
+//     int BSIZE = (sizeof(buffer) / 3);
+//     // int BSIZE = s.length();
+//     char character[BSIZE * 2];
+//     // Serial.println(BSIZE);
+//     String string_to_hex = "";
 
-    for (int i = 0; i < BSIZE; i = i + 1)
-    {
-        character[i * 2 + 1] = ((buffer[i * 3 + 1] & 0x3) << 6) + (buffer[i * 3 + 2] & 0x3F);
-        character[i * 2] = ((buffer[i * 3] & 0xF) << 4) + ((buffer[i * 3 + 1] >> 2) & 0xF);
-        String ss1 = String(character[i * 2], HEX);
-        String ss2 = String(character[i * 2 + 1], HEX);
-        // 下面的代码用于处理出现x xx和xx x这种情况，补足前面的0为0x xx或者xx 0x
-        string_to_hex += ss1.length() == 1 ? "0" + ss1 : ss1;
-        string_to_hex += ss2.length() == 1 ? "0" + ss2 : ss2;
-        // string_to_hex += String(character[i * 2 + 1], HEX);
-    }
-    // int i0 = (int)character[0];
-    // int i1 = (int)character[1];
+//     for (int i = 0; i < BSIZE; i = i + 1)
+//     {
+//         character[i * 2 + 1] = ((buffer[i * 3 + 1] & 0x3) << 6) + (buffer[i * 3 + 2] & 0x3F);
+//         character[i * 2] = ((buffer[i * 3] & 0xF) << 4) + ((buffer[i * 3 + 1] >> 2) & 0xF);
+//         String ss1 = String(character[i * 2], HEX);
+//         String ss2 = String(character[i * 2 + 1], HEX);
+//         // 下面的代码用于处理出现x xx和xx x这种情况，补足前面的0为0x xx或者xx 0x
+//         string_to_hex += ss1.length() == 1 ? "0" + ss1 : ss1;
+//         string_to_hex += ss2.length() == 1 ? "0" + ss2 : ss2;
+//         // string_to_hex += String(character[i * 2 + 1], HEX);
+//     }
+//     // int i0 = (int)character[0];
+//     // int i1 = (int)character[1];
 
-    // string_to_hex += String(character[0], HEX);
-    // string_to_hex += String(character[1], HEX);
-    // Serial.println(character[0]);
-    // Serial.println(character[1]);
-    // Serial.println(string_to_hex);
-    return string_to_hex;
-}
+//     // string_to_hex += String(character[0], HEX);
+//     // string_to_hex += String(character[1], HEX);
+//     // Serial.println(character[0]);
+//     // Serial.println(character[1]);
+//     // Serial.println(string_to_hex);
+//     return string_to_hex;
+// }
 
+// 把16进制字符转化成二进制
 int *getBin2(uint8_t data)
 {
     static int a[8];
@@ -125,6 +130,7 @@ int *getBin2(uint8_t data)
     return a;
 }
 
+// 十进制转二进制字符
 int *getBin(int Dec)
 {
     //  Dec=128;
@@ -144,25 +150,24 @@ int *getBin(int Dec)
     return a;
 };
 
+// 从字符的像素16进制字符重新转成二进制字符串
 String getPixDataFromHex(String s)
 {
-    String ret = "";
+    // String ret = "";
     String retNoReturn;
     // Serial.println(s);
     int l = s.length();
+    // 注意，这里是两个字符进行的处理
     for (int i = 0; i < l; i = i + 2)
     {
-        // if (i % 4 == 0)
-        //     ret += "\r\n";
-        // int *sa;
         String ch = (String)s[i] + (String)s[i + 1];
         int d = 0;
         sscanf(ch.c_str(), "%x", &d);
         // 下面用了bitread来获取数字对应的二进制，bitread(value,k)是读取数字value中的二进制的第k位的值。
+        // 使用bitread就没有使用getBin这种方式了，但是保留了两种getbin函数
         for (int k = 7; k >= 0; k--)
         {
             // Serial.print(sa[k]);
-            // ret = ret + bitRead(d,k);
             retNoReturn += bitRead(d, k);
             // retNoReturn=retNoReturn+(String)sa[k];
         }
@@ -172,12 +177,14 @@ String getPixDataFromHex(String s)
     // Serial.println(retNoReturn);
     return retNoReturn;
 }
-String getPixBinStrFromString(String strDisplay)
+
+// 从字库文件获取字符对应的二进制编码字符串
+String getPixBinStrFromString(String displayString,String fontPath)
 {
 
     LittleFS.begin();
 
-    File file = LittleFS.open("/x.font");
+    File file = LittleFS.open(fontPath);
     static uint8_t buf_total_str[6];
     static uint8_t buf_fontsize[2];
     // Serial.println(file.position());
@@ -205,7 +212,7 @@ String getPixBinStrFromString(String strDisplay)
     file.read(buf_total_str_unicode, font_unicode_cnt);
     String strUnicodes = getStringFromChars2(buf_total_str_unicode, font_unicode_cnt);
     free(buf_total_str_unicode);
-    String strUnicode = getUnicodeFromUTF82(strDisplay);
+    String strUnicode = getUnicodeFromUTF82(displayString);
     // Serial.println(strUnicode.length());
     int unicode_begin_idx = 6 + 2 + total_font_cnt * 5;
     // Serial.println("begin");
