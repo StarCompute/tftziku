@@ -7,6 +7,7 @@ String getUnicodeFromUTF8(String s);
 int *getBin(int Dec);
 int *getBin2(uint8_t data);
 String getPixDataFromHex(String s);
+void DrawStr(int, int, String,int color);
 
 
 

@@ -7,7 +7,6 @@
 // 注意tft屏幕的借口配置在相关的文件中
 TFT_eSPI tft = TFT_eSPI();
 
-void DrawStr(int, int, String,int color);
 
 void DrawPixStr(int x, int y, String strUni, int fontsize)
 {
