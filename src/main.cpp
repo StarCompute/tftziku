@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <painlessMesh.h>
 #include <TFT_eSPI.h>
 #include <LittleFS.h>
 #include "common.h"
@@ -6,7 +7,7 @@
 // 注意tft屏幕的借口配置在相关的文件中
 TFT_eSPI tft = TFT_eSPI();
 
-// long beginTime, endTime;
+void DrawStr(int, int, String,int color);
 
 void DrawPixStr(int x, int y, String strUni, int fontsize)
 {
@@ -38,43 +39,35 @@ void setup()
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN);
 
-  String strBinDisplay = getPixBinStrFromString("好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", "/x.font");
+  // String strBinDisplay = getPixBinStrFromString("好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", "/x.font");
 
-  // 下面代码在终端输出文字点阵。
-  Serial.println(strBinDisplay.length());
-  for (int i = 0; i < strBinDisplay.length(); i++)
-  {
-    if (i % 16 == 0)
-      Serial.print("\r\n");
-    if (strBinDisplay[i] == '0')
-      Serial.print(' ');
-    if (strBinDisplay[i] == '1')
-      Serial.print(strBinDisplay[i]);
-  }
+  DrawStr(10, 2, "湿度：",TFT_GREEN);
+  DrawStr(10, 18, "温度：",TFT_RED);
+  DrawStr(10, 34, "光照度：",TFT_DARKGREEN);
+}
 
+void loop()
+{
+  delay(1);
+}
 
-// 下面的代码显示对应的汉字在TFT屏幕上
+void DrawStr(int x = 0, int y = 0, String str = "星算",int color=TFT_GREEN)
+{
+
+  // 下面的代码显示对应的汉字在TFT屏幕上
+  String strBinData=getPixBinStrFromString(str, "/x.font");
   amountDisplay = screenWidth / fontsize; // 如果不愿意动态计算显示数量可以注释调这一行
-  for (int i = 0; i < strBinDisplay.length(); i++)
+  for (int i = 0; i < strBinData.length(); i++)
   {
-    // 这里必须有特别的说明，每个字符的像素点总数是singleStrPixsAmount=fontsize*fontsize,如果是16号字体就是256个；
-    // 每行显示10个字，那么他们到一点阶段就必须换行，x坐标归0，y坐标必须加上字体对应的像素
-    // 对于pX,每显示fontsize个像素后就必须字体归到起始点，注意每显示n字符后，这个起始点就必须加上fontsize*n这个起始值
-    // 同时对于换行也必须处理。
 
     pX = int(i % fontsize) + int(i / (singleStrPixsAmount)) * fontsize - int(i / (singleStrPixsAmount * amountDisplay)) * fontsize * amountDisplay;
 
     // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
     pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / fontsize) + int(i / (singleStrPixsAmount * amountDisplay)) * fontsize;
 
-    if (strBinDisplay[i] == '1')
+    if (strBinData[i] == '1')
     {
-      tft.drawPixel(pX, pY, TFT_GREEN);
+      tft.drawPixel(pX+x , pY +y, color);
     }
   }
-}
-
-void loop()
-{
-  delay(1);
 }
