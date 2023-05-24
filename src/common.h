@@ -11,6 +11,7 @@ void DrawStr(int, int, String,int color);
 
 
 
+
 int getStrCountFromFontFile(uint8_t * bs);
 int getFontSizeFromFontFile(uint8_t * bs);
 

@@ -7,7 +7,6 @@
 // 注意tft屏幕的借口配置在相关的文件中
 TFT_eSPI tft = TFT_eSPI();
 
-
 void DrawPixStr(int x, int y, String strUni, int fontsize)
 {
 
@@ -29,6 +28,54 @@ int screenWidth = 160;
 
 int singleStrPixsAmount = fontsize * fontsize;
 
+// 下面的代码处理wifi mesh
+#define MESH_PREFIX "kaka"
+#define MESH_PASSWORD "somethingSneaky"
+#define MESH_PORT 5557
+painlessMesh mesh;
+Scheduler userScheduler; // to control your personal task
+void receivedCallback(uint32_t from, String &msg)
+{
+  Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
+  // DrawStr(10,50,msg,TFT_WHITE);
+  if(msg.indexOf("light")>=0){
+    msg.replace("light:","");
+    tft.setTextFont(2);
+    tft.fillRect(10+16*4,34,100,16,TFT_BLACK);
+    // tft.setTextColor(TFT_GREEN);
+    tft.drawString(msg+"(lx)",10+16*4,34);
+  }
+  else if(msg.indexOf("humidity")>=0){
+    msg.replace("humidity:","");
+    tft.setTextFont(2);
+    tft.fillRect(10+16*5,18,100,16,TFT_BLACK);
+    // tft.setTextColor(TFT_GREEN);
+    tft.drawString(msg,10+16*5,18);
+  }
+    else if(msg.indexOf("air_temperature")>=0){
+    msg.replace("air_temperature:","");
+    tft.setTextFont(2);
+    tft.fillRect(10+16*5,2,100,16,TFT_BLACK);
+    // tft.setTextColor(TFT_GREEN);
+    tft.drawString(msg,10+16*5,2);
+  }
+}
+
+void newConnectionCallback(uint32_t nodeId)
+{
+  Serial.printf("--> startHere: New Connection, nodeId = %u\n", nodeId);
+}
+
+void changedConnectionCallback()
+{
+  Serial.printf("Changed connections\n");
+}
+
+void nodeTimeAdjustedCallback(int32_t offset)
+{
+  Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(), offset);
+}
+
 void setup()
 {
 
@@ -40,21 +87,30 @@ void setup()
 
   // String strBinDisplay = getPixBinStrFromString("好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", "/x.font");
 
-  DrawStr(10, 2, "湿度：",TFT_GREEN);
-  DrawStr(10, 18, "温度：",TFT_RED);
-  DrawStr(10, 34, "光照度：",TFT_DARKGREEN);
+  DrawStr(10, 2, "空气温度：", TFT_GREEN);
+  DrawStr(10, 18, "土壤湿度：", TFT_RED);
+  DrawStr(10, 34, "光照度：", TFT_DARKGREEN);
+
+  mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
+
+  mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT);
+  mesh.onReceive(&receivedCallback);
+  mesh.onNewConnection(&newConnectionCallback);
+  mesh.onChangedConnections(&changedConnectionCallback);
+  mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
 }
 
 void loop()
 {
   delay(1);
+  mesh.update();
 }
 
-void DrawStr(int x = 0, int y = 0, String str = "星算",int color=TFT_GREEN)
+void DrawStr(int x = 0, int y = 0, String str = "星算", int color = TFT_GREEN)
 {
 
   // 下面的代码显示对应的汉字在TFT屏幕上
-  String strBinData=getPixBinStrFromString(str, "/x.font");
+  String strBinData = getPixBinStrFromString(str, "/x.font");
   amountDisplay = screenWidth / fontsize; // 如果不愿意动态计算显示数量可以注释调这一行
   for (int i = 0; i < strBinData.length(); i++)
   {
@@ -66,7 +122,10 @@ void DrawStr(int x = 0, int y = 0, String str = "星算",int color=TFT_GREEN)
 
     if (strBinData[i] == '1')
     {
-      tft.drawPixel(pX+x , pY +y, color);
+      tft.drawPixel(pX + x, pY + y, color);
+    }
+    else{
+      tft.drawPixel(pX + x, pY + y, TFT_BLACK);
     }
   }
 }
