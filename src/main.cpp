@@ -22,7 +22,7 @@ void DrawPixStr(int x, int y, String strUni, int fontsize)
 // 下面代码在TFT屏幕输出文字
 int pX = 16;
 int pY = 0;
-int fontsize = 16;      // 字号
+int fontsize = 12;      // 字号
 int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
 int screenWidth = 160;
 
@@ -87,10 +87,10 @@ void setup()
 
   // String strBinDisplay = getPixBinStrFromString("好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", "/x.font");
 
-  DrawStr(10, 2, "空气温度：", TFT_GREEN);
-  DrawStr(10, 18, "土壤湿度：", TFT_RED);
-  DrawStr(10, 34, "光照度：", TFT_DARKGREEN);
-
+  // DrawStr(10, 2, "空气温度：", TFT_GREEN);
+  // DrawStr(10, 18, "土壤湿度：", TFT_RED);
+  // DrawStr(10, 34, "光照度：", TFT_DARKGREEN);
+  DrawStr(2, 2, "GB2312 gb abcdefg 我看这世界繁华，都是浮云一般无二。而倘若你尚未体验这繁华，这世界又同你有什么关系。好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", TFT_GREEN);
   mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
 
   mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT);
@@ -111,6 +111,7 @@ void DrawStr(int x = 0, int y = 0, String str = "星算", int color = TFT_GREEN)
 
   // 下面的代码显示对应的汉字在TFT屏幕上
   String strBinData = getPixBinStrFromString(str, "/x.font");
+  // Serial.print(strBinData);
   amountDisplay = screenWidth / fontsize; // 如果不愿意动态计算显示数量可以注释调这一行
   for (int i = 0; i < strBinData.length(); i++)
   {

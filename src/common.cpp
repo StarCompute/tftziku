@@ -192,6 +192,7 @@ String getPixBinStrFromString(String displayString,String fontPath)
     // Serial.println(file.position());
     file.read(buf_fontsize, 2);
 
+// 下面代码获取总字数和字号
     String s1 = getStringFromChars(buf_total_str, 6);
     String s2 = getStringFromChars(buf_fontsize, 2);
     int total_font_cnt = strtoll(s1.c_str(), NULL, 16);
@@ -205,7 +206,7 @@ String getPixBinStrFromString(String displayString,String fontPath)
     String font_unicode = "";
     uint8_t *buf_total_str_unicode;
     int font_page = int(font_size * font_size / 8 * 2);
-   
+    if(font_size*font_size%8>0) font_page+=2;
     uint8_t buf_seek_pixdata[font_page];
 
     buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
