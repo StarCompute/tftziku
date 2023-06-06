@@ -111,22 +111,24 @@ void DrawStr(int x = 0, int y = 0, String str = "星算", int color = TFT_GREEN)
 
   // 下面的代码显示对应的汉字在TFT屏幕上
   String strBinData = getPixBinStrFromString(str, "/x.font");
-  // Serial.print(strBinData);
   amountDisplay = screenWidth / fontsize; // 如果不愿意动态计算显示数量可以注释调这一行
+  int l1 = singleStrPixsAmount * amountDisplay;
+  int l2 = fontsize * amountDisplay;
   for (int i = 0; i < strBinData.length(); i++)
   {
 
-    pX = int(i % fontsize) + int(i / (singleStrPixsAmount)) * fontsize - int(i / (singleStrPixsAmount * amountDisplay)) * fontsize * amountDisplay;
-
-    // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
-    pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / fontsize) + int(i / (singleStrPixsAmount * amountDisplay)) * fontsize;
-
     if (strBinData[i] == '1')
     {
+      pX = int(i % fontsize) + int(i / singleStrPixsAmount) * fontsize - int(i / l1) * l2;
+
+      // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
+      pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / fontsize) + int(i / l1) * fontsize;
+
       tft.drawPixel(pX + x, pY + y, color);
     }
-    else{
-      tft.drawPixel(pX + x, pY + y, TFT_BLACK);
-    }
+    // else
+    // {
+    //   // tft.drawPixel(pX + x, pY + y, TFT_BLACK);
+    // }
   }
 }
