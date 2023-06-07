@@ -7,18 +7,18 @@
 // 注意tft屏幕的借口配置在相关的文件中
 TFT_eSPI tft = TFT_eSPI();
 
-void DrawPixStr(int x, int y, String strUni, int fontsize)
-{
+// void DrawPixStr(int x, int y, String strUni, int fontsize)
+// {
 
-  for (int m = 0; m < fontsize; m++)
-  {
-    for (int i = 0; i < fontsize; i++)
-    {
-      if ((String)strUni[m * fontsize + i] == "1")
-        tft.drawPixel(y + i, x + m, TFT_GREEN);
-    }
-  }
-}
+//   for (int m = 0; m < fontsize; m++)
+//   {
+//     for (int i = 0; i < fontsize; i++)
+//     {
+//       if ((String)strUni[m * fontsize + i] == "1")
+//         tft.drawPixel(y + i, x + m, TFT_GREEN);
+//     }
+//   }
+// }
 // 下面代码在TFT屏幕输出文字
 int pX = 16;
 int pY = 0;
