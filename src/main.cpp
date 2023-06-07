@@ -87,10 +87,10 @@ void setup()
 
   // String strBinDisplay = getPixBinStrFromString("好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", "/x.font");
 
-  // DrawStr(10, 2, "空气温度：", TFT_GREEN);
-  // DrawStr(10, 18, "土壤湿度：", TFT_RED);
-  // DrawStr(10, 34, "光照度：", TFT_DARKGREEN);
-  DrawStr(2, 2, "GB2312 gb abcdefg 我看这世界繁华，都是浮云一般无二。而倘若你尚未体验这繁华，这世界又同你有什么关系。好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", TFT_GREEN);
+  DrawStr(10, 2, "空气温度：", TFT_GREEN);
+  DrawStr(10, 18, "土壤湿度：", TFT_RED);
+  DrawStr(10, 34, "光照度：", TFT_DARKGREEN);
+  // DrawStr(2, 2, "GB2312 gb abcdefg 我看这世界繁华，都是浮云一般无二。而倘若你尚未体验这繁华，这世界又同你有什么关系。好软,这是一个自定义软字库的显示。欢迎你的使用！这个软字库有七千个汉字，基本囊括了日常使用的汉字内容。", TFT_GREEN);
   mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
 
   mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT);
