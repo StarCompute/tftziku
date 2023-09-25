@@ -10,7 +10,7 @@ e = '、。・ˉˇ〃々―～‖…‘’“”〔〕〈〉《》「」『』�
 asc = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
 s = ""
 e = e+asc
-e="你"
+# e="你"
 # head_str_count
 head_str_unicode = ""
 str_pix_content = ""
@@ -70,6 +70,50 @@ def binTo32(num, b=32):
     num=int(num,2)
     return ((num == 0) and "0") or (baseN(num // b, b).lstrip("0") + "0123456789abcdefghijklmnopqrstuvwxyz"[num % b])
 
+def getPixsDataFromImg32(img):
+    ss = ""
+    chars = ''
+    linechars = ""
+    hexchar = ""
+    for i in range(ypos, ypos+head_fontsize):
+        # for d in range(9,9+len(displatstr)*head_fontsize):
+        for d in range(10, 10+head_fontsize):
+            dotpix = img.getpixel((d, i))
+            # print(dotpix)
+            # 注意下面这个判断很重要，用于处理字体模糊的情况。
+            # 如果不这样处理，有些字模在较小字号时显示不正常
+            # 有些字体用很小的字号进行显示的时候，它的边缘是模糊的，不再是简单的两种颜色，所以必须用一定的像素值来判断获取
+            # 你可以自行调节下面的这个数值进行测试
+            if dotpix[0] > 90 and dotpix[1] > 90 and dotpix[2] > 90:
+                # img.getpixel()
+                ss += " 1"
+                chars += "1"
+
+            else:
+                ss += "  "
+                chars += "0"
+            
+          
+        ss += "\r\n"
+    
+    chars=chars.ljust(max_fontchars,'0')
+    for i in range(0,int(max_fontchars/8)):
+        linechars=chars[i*8:i*8+8]
+        # print(linechars)
+        hexchar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
+    
+    hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(max_fontchars/4), '0')
+    if(hexchar2!=hexchar):
+        print(hexchar,hexchar2,hexchar2==hexchar)
+        print(ss)
+    # 下面这个chars是字符对应模的二进制字符串
+
+    # print(chars)
+    # print(hexchar)
+    chars32=binTo32(chars)
+    # print(chars32)
+    return chars32
+
 def getPixsDataFromImgLite(img):
     ss = ""
     chars = ''
@@ -108,8 +152,10 @@ def getPixsDataFromImgLite(img):
         print(ss)
     # 下面这个chars是字符对应模的二进制字符串
 
-    print(chars)
-    print(hexchar)
+    # print(chars)
+    # print(hexchar)
+    # print(binTo32(chars))
+
     return hexchar
 
 def getPixsDataFromImg(img):
@@ -176,7 +222,7 @@ for s1 in displatstr:
     draw.text((10, 10), str(s1), fill=(
         255, 255, 255), font=font, stroke_width=0)
     # im.save("d:/d321.bmp")
-    str_pix_content += str(getPixsDataFromImgLite(im))
+    str_pix_content += str(getPixsDataFromImg32(im))
     draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
     print(".",end="",flush=True)
 
