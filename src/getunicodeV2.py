@@ -15,7 +15,7 @@ head_str_unicode = ""
 str_pix_content = ""
 strcontent = ""
 strlen = len(e)
-head_fontsize = 12
+head_fontsize = 16
 # 依照字体大小，计算单一字符最后转成二进制时的总长度
 max_fontchars=head_fontsize*head_fontsize
 if(head_fontsize*head_fontsize%8>0):max_fontchars=head_fontsize*head_fontsize+(8-(head_fontsize*head_fontsize%8))
@@ -145,95 +145,95 @@ def getPixsDataFromImg(img):
     return hexchar
 
 
-# im = Image.new('RGB', (256, 256), (0, 0, 0))
+im = Image.new('RGB', (256, 256), (0, 0, 0))
 
-# # 下面的simsun表示宋体，你可以自定义字体文件
-# font = ImageFont.truetype("simsun.ttc", size=head_fontsize, encoding="gb")
-# # font=ImageFont.FreeTypeFont(  size=head_fontsize)
-# # ImageFont.
-# draw = ImageDraw.Draw(im)
+# 下面的simsun表示宋体，你可以自定义字体文件
+font = ImageFont.truetype("simsun.ttc", size=head_fontsize, encoding="gb")
+# font=ImageFont.FreeTypeFont(  size=head_fontsize)
+# ImageFont.
+draw = ImageDraw.Draw(im)
 
-# displatstr = e
+displatstr = e
 
-# ccc = ""
-# # draw.
-# print("开始创建字体，请等待：")
-# for s1 in displatstr:
+ccc = ""
+# draw.
+print("开始创建字体，请等待：")
+for s1 in displatstr:
 
-#     draw.text((10, 10), str(s1), fill=(
-#         255, 255, 255), font=font, stroke_width=0)
-#     # im.save("d:/d321.bmp")
-#     str_pix_content += str(getPixsDataFromImgLite(im))
-#     draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
-#     print(".",end="",flush=True)
+    draw.text((10, 10), str(s1), fill=(
+        255, 255, 255), font=font, stroke_width=0)
+    # im.save("d:/d321.bmp")
+    str_pix_content += str(getPixsDataFromImgLite(im))
+    draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
+    print(".",end="",flush=True)
 
-# # print(str_pix_content)
-# # print(len(str_pix_content))
-# font_content = head_unicode_content+str_pix_content
-# # # print(font_content)
+# print(str_pix_content)
+# print(len(str_pix_content))
+font_content = head_unicode_content+str_pix_content
+# # print(font_content)
 
-# print("\r\n 创建字体结束，开始写文件。")
-# f=open("d:/x.font","w")
-# f.write(font_content)
-# f.close()
-# print("\r\n 写文件结束，字体已存储。")
+print("\r\n 创建字体结束，开始写文件。")
+f=open("d:/x.font","w")
+f.write(font_content)
+f.close()
+print("\r\n 写文件结束，字体已存储。")
 # 上面代码是创建字库
 
 
 
 
-# 下面代码是测试生产的字库
+# # 下面代码是测试生产的字库
 
-# 从16进制编码生成二进制的像素编码
-def genPixDataFromHexData(str, size):
-    rtn = ""
-    str_char=""
-    l = len(str)
-    for c in range(int(l/2)):
-        childstr = str[c*2:c*2+2]
-        # print(childstr)
-        rtn += bin(int(childstr, 16)).removeprefix('0b').rjust(8, '0')
-    for c in range(size*size):
+# # 从16进制编码生成二进制的像素编码
+# def genPixDataFromHexData(str, size):
+#     rtn = ""
+#     str_char=""
+#     l = len(str)
+#     for c in range(int(l/2)):
+#         childstr = str[c*2:c*2+2]
+#         # print(childstr)
+#         rtn += bin(int(childstr, 16)).removeprefix('0b').rjust(8, '0')
+#     for c in range(size*size):
         
-        if(c%size==0):str_char+="\r\n"
-        str_char+=rtn[c]
-    # print(rtn.replace('0','0'))
-    print(rtn)
-    return rtn
+#         if(c%size==0):str_char+="\r\n"
+#         str_char+=rtn[c]
+#     # print(rtn.replace('0','0'))
+#     print(rtn)
+#     return rtn
 
-str = "我爱帝都天安门"
-# str = "我BCDEFGHIJKLMN"
-str="我"
-# 从字符获取像素编码
-def getPixDataFromStr(displaystr):
-    # 下面的代码读取字库并且显示对应的内容
-    f = open("d:/x.font", "r")
-    str_cnt_hex = f.read(6)
-    str_cnt = int(str_cnt_hex, 16)
-    font_size = int(f.read(2))
-    print(font_size)
+# str = "我爱帝都天安门"
+# # str = "我BCDEFGHIJKLMN"
+# str="我"
+# # 从字符获取像素编码
+# def getPixDataFromStr(displaystr):
+#     # 下面的代码读取字库并且显示对应的内容
+#     f = open("d:/x.font", "r")
+#     str_cnt_hex = f.read(6)
+#     str_cnt = int(str_cnt_hex, 16)
+#     font_size = int(f.read(2))
+#     print(font_size)
     
-    str_uinicode = ""
-    str_uinicode = f.read(str_cnt*5)
-    unicode_begin_idx = 6+2+str_cnt*5
-    font_page = int(font_size*font_size/8*2)
-    if(font_size*font_size%8>0):font_page+=2
-    for d in displaystr:
-        if (ord(d) > 129):
-            t = d.encode("unicode_escape").decode().removeprefix("\\")
-        else:
-            t = hex(ord(d))
-            t = t.replace('0x', 'u00')+""
-        p = str_uinicode.find(t)
-        pidx = int(p/5)
-    # print(unicode_begin_idx+pidx*font_page)
-        pixbeginidx = unicode_begin_idx+pidx*font_page
-        seekidx = f.seek(pixbeginidx, 0)
-        pixdata = f.read(font_page)
-        print(pixdata, font_size)
-        genPixDataFromHexData(pixdata, font_size)
-        # return
-    print(str_cnt_hex, str_cnt, font_size, p, e[pidx], pixbeginidx, seekidx)
-    f.close()
+#     str_uinicode = ""
+#     str_uinicode = f.read(str_cnt*5)
+#     unicode_begin_idx = 6+2+str_cnt*5
+#     font_page = int(font_size*font_size/8*2)
+#     if(font_size*font_size%8>0):font_page+=2
+#     for d in displaystr:
+#         if (ord(d) > 129):
+#             t = d.encode("unicode_escape").decode().removeprefix("\\")
+#         else:
+#             t = hex(ord(d))
+#             t = t.replace('0x', 'u00')+""
+#         p = str_uinicode.find(t)
+#         pidx = int(p/5)
+#     # print(unicode_begin_idx+pidx*font_page)
+#         pixbeginidx = unicode_begin_idx+pidx*font_page
+#         seekidx = f.seek(pixbeginidx, 0)
+#         pixdata = f.read(font_page)
+#         print(pixdata, font_size)
+#         genPixDataFromHexData(pixdata, font_size)
+#         # return
+#     print(str_cnt_hex, str_cnt, font_size, p, e[pidx], pixbeginidx, seekidx)
+#     f.close()
 
-getPixDataFromStr(str)
+# getPixDataFromStr(str)
