@@ -236,4 +236,4 @@ print("\r\n 写文件结束，字体已存储。")
 #     print(str_cnt_hex, str_cnt, font_size, p, e[pidx], pixbeginidx, seekidx)
 #     f.close()
 
-# getPixDataFromStr(str)
+# getPixDataFromStr(str) 
