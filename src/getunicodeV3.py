@@ -3,6 +3,10 @@
 
 
 from PIL import Image, ImageFont, ImageDraw
+from tqdm import tqdm
+from rich.progress import track
+from rich import print
+
 
 # 下面是完整的GB2312字符集，剔除了几个影响显示的特殊符号，原字符集的中文都在里面
 
@@ -16,7 +20,7 @@ head_str_unicode = ""
 str_pix_content = ""
 strcontent = ""
 strlen = len(e)
-head_fontsize = 12
+head_fontsize = 16
 # 依照字体大小，计算单一字符最后转成二进制时的总长度
 max_fontchars=head_fontsize*head_fontsize
 if(head_fontsize*head_fontsize%8>0):max_fontchars=head_fontsize*head_fontsize+(8-(head_fontsize*head_fontsize%8))
@@ -164,7 +168,7 @@ def getPixsDataFromImg(img):
     chars = ''
     linechars = ""
     hexchar = ""
-    for i in range(ypos, ypos+head_fontsize):
+    for i in track(range(ypos, ypos+head_fontsize)):
         # for d in range(9,9+len(displatstr)*head_fontsize):
         for d in range(10, 10+head_fontsize):
             dotpix = img.getpixel((d, i))
@@ -217,25 +221,25 @@ displatstr = e
 ccc = ""
 # draw.
 print("开始创建字体，请等待：")
-for s1 in displatstr:
+for s1 in track(displatstr):
 
     draw.text((10, 10), str(s1), fill=(
         255, 255, 255), font=font, stroke_width=0)
     # im.save("d:/d321.bmp")
     str_pix_content += str(getPixsDataFromImg32(im))
     draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
-    print(".",end="",flush=True)
+    # print(".",end="",flush=True)
 
 # print(str_pix_content)
 # print(len(str_pix_content))
 font_content = head_unicode_content+str_pix_content
 # # print(font_content)
 
-print("\r\n 创建字体结束，开始写文件。")
+print("\r\n创建字体结束，开始写文件。")
 f=open("d:/x.font","w")
 f.write(font_content)
 f.close()
-print("\r\n 写文件结束，字体已存储。")
+print("\r\n[bold magenta]写文件结束，字体已存储。[/bold magenta]\r\n")
 # 上面代码是创建字库
 
 
