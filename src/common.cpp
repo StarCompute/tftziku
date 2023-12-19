@@ -22,7 +22,7 @@ String getStringFromChars2(uint8_t *bs, int l)
     String ret;
     ret = (char *)bs;
     // int l=(int)(strlen(*bs));
-    // int l=sizeof(bs) ;
+    // int l=(int)sizeof(bs) ;
     // Serial.println(l);
     // for (int i = 0; i < l; i++)
     // {
@@ -177,70 +177,164 @@ String getPixDataFromHex(String s)
     // Serial.println(retNoReturn);
     return retNoReturn;
 }
+String strUnicodes = "";
+int unicode_begin_idx = 0;
+int font_unicode_cnt = 0;
+int total_font_cnt = 0;
+int font_size = 0;
+int font_page = 0;
+
+
+void initZhiku(String fontPath)
+{
+    LittleFS.begin();
+    if (LittleFS.exists(fontPath))
+    {
+        File file = LittleFS.open(fontPath);
+
+        static uint8_t buf_total_str[6];
+        static uint8_t buf_fontsize[2];
+        // Serial.println(file.position());
+        file.read(buf_total_str, 6);
+        // Serial.println(file.position());
+        file.read(buf_fontsize, 2);
+
+        // 下面代码获取总字数和字号
+        String s1 = getStringFromChars(buf_total_str, 6);
+        String s2 = getStringFromChars(buf_fontsize, 2);
+        total_font_cnt = strtoll(s1.c_str(), NULL, 16);
+        font_size = s2.toInt();
+
+        // Serial.println(s1);
+        // Serial.println(total_font_cnt);
+        // Serial.println(font_size);
+        // 待读取的总编码长度,每个字都对应着一个uxxxx，所以乘5
+        font_unicode_cnt = total_font_cnt * 5;
+        // String font_unicode = "";
+        uint8_t *buf_total_str_unicode;
+        font_page = int(font_size * font_size / 8 * 2);
+        if (font_size * font_size % 8 > 0)
+            font_page += 2;
+
+        buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
+        file.read(buf_total_str_unicode, font_unicode_cnt);
+        strUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
+        // Serial.println(strUnicodes.length());
+        free(buf_total_str_unicode);
+        unicode_begin_idx = 6 + 2 + total_font_cnt * 5;
+        file.close();
+    }
+    // LittleFS.end();
+}
 
 // 从字库文件获取字符对应的二进制编码字符串
-String getPixBinStrFromString(String displayString,String fontPath)
+String getPixBinStrFromString2(String displayString, String fontPath)
 {
 
-    LittleFS.begin();
-
-    File file = LittleFS.open(fontPath);
-    static uint8_t buf_total_str[6];
-    static uint8_t buf_fontsize[2];
-    // Serial.println(file.position());
-    file.read(buf_total_str, 6);
-    // Serial.println(file.position());
-    file.read(buf_fontsize, 2);
-
-// 下面代码获取总字数和字号
-    String s1 = getStringFromChars(buf_total_str, 6);
-    String s2 = getStringFromChars(buf_fontsize, 2);
-    int total_font_cnt = strtoll(s1.c_str(), NULL, 16);
-    int font_size = s2.toInt();
-
-
-    // Serial.println(s1);
-    // Serial.println(total_font_cnt);
-    // Serial.println(font_size);
-    int font_unicode_cnt = total_font_cnt * 5;
-    String font_unicode = "";
-    uint8_t *buf_total_str_unicode;
-    int font_page = int(font_size * font_size / 8 * 2);
-    if(font_size*font_size%8>0) font_page+=2;
-    uint8_t buf_seek_pixdata[font_page];
-
-    buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
-    file.read(buf_total_str_unicode, font_unicode_cnt);
-    String strUnicodes = getStringFromChars2(buf_total_str_unicode, font_unicode_cnt);
-    free(buf_total_str_unicode);
-    String strUnicode = getUnicodeFromUTF82(displayString);
-    // Serial.println(strUnicode.length());
-    int unicode_begin_idx = 6 + 2 + total_font_cnt * 5;
-    // Serial.println("begin");
-    //  Serial.println(font_page);
-    String ff = "";
     String ret = "";
-    for (int i = 0; i < strUnicode.length(); i = i + 4)
+
+    if (LittleFS.exists(fontPath))
     {
-        String _str = "u" + strUnicode.substring(i, i + 4);
-        file.seek(8);
-        String asd = "";
-        int readFileSize = 5 * 400;
-        uint8_t buf_read_pixdata[readFileSize];
+        File file = LittleFS.open(fontPath);
+        uint8_t buf_seek_pixdata[font_page];
+        String strUnicode = getUnicodeFromUTF82(displayString);
+        file.seek(8 + font_unicode_cnt);
+        String ff = "";
+        for (int i = 0; i < strUnicode.length(); i = i + 4)
+        {
+            String _str = "u" + strUnicode.substring(i, i + 4);
+            file.seek(8);
+            String asd = "";
+            int readFileSize = 5 * 400;
+            uint8_t buf_read_pixdata[readFileSize];
 
-        // int cnt_page = (total_font_cnt + 6) / 6;'
-        int cnt_page = total_font_cnt / 400 + 1;
-        int uIdx = 0;
-        int p = strUnicodes.indexOf(_str);
-        uIdx = p / 5;
-        int pixbeginidx = unicode_begin_idx + uIdx * font_page;
-        file.seek(pixbeginidx);
-        file.read(buf_seek_pixdata, font_page);
-        String su = getStringFromChars(buf_seek_pixdata, font_page);
+            // int cnt_page = (total_font_cnt + 6) / 6;'
+            int cnt_page = total_font_cnt / 400 + 1;
+            int uIdx = 0;
+            int p = strUnicodes.indexOf(_str);
+            uIdx = p / 5;
+            int pixbeginidx = unicode_begin_idx + uIdx * font_page;
+            file.seek(pixbeginidx);
+            file.read(buf_seek_pixdata, font_page);
+            String su = getStringFromChars(buf_seek_pixdata, font_page);
 
-        ret += getPixDataFromHex(su);
+            ret += getPixDataFromHex(su);
+        }
+        file.close();
     }
-    file.close();
-    LittleFS.end();
+    return ret;
+}
+
+// 从字库文件获取字符对应的二进制编码字符串
+String getPixBinStrFromString(String displayString, String fontPath)
+{
+
+    String ret = "";
+
+    LittleFS.begin();
+    if (LittleFS.exists(fontPath))
+    {
+        File file = LittleFS.open(fontPath);
+
+        static uint8_t buf_total_str[6];
+        static uint8_t buf_fontsize[2];
+        // Serial.println(file.position());
+        file.read(buf_total_str, 6);
+        // Serial.println(file.position());
+        file.read(buf_fontsize, 2);
+
+        // 下面代码获取总字数和字号
+        String s1 = getStringFromChars(buf_total_str, 6);
+        String s2 = getStringFromChars(buf_fontsize, 2);
+        int total_font_cnt = strtoll(s1.c_str(), NULL, 16);
+        int font_size = s2.toInt();
+
+        // Serial.println(s1);
+        // Serial.println(total_font_cnt);
+        // Serial.println(font_size);
+        // 待读取的总编码长度,每个字都对应着一个uxxxx，所以乘5
+        int font_unicode_cnt = total_font_cnt * 5;
+        // String font_unicode = "";
+        uint8_t *buf_total_str_unicode;
+        int font_page = int(font_size * font_size / 8 * 2);
+        if (font_size * font_size % 8 > 0)
+            font_page += 2;
+        uint8_t buf_seek_pixdata[font_page];
+
+        buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
+        file.read(buf_total_str_unicode, font_unicode_cnt);
+        String strUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
+        // Serial.println(strUnicodes.length());
+        free(buf_total_str_unicode);
+        String strUnicode = getUnicodeFromUTF82(displayString);
+        // Serial.println(strUnicode);
+        // Serial.println(strUnicode.length());
+        int unicode_begin_idx = 6 + 2 + total_font_cnt * 5;
+        // Serial.println("begin");
+        //  Serial.println(font_page);
+        String ff = "";
+        for (int i = 0; i < strUnicode.length(); i = i + 4)
+        {
+            String _str = "u" + strUnicode.substring(i, i + 4);
+            file.seek(8);
+            String asd = "";
+            int readFileSize = 5 * 400;
+            uint8_t buf_read_pixdata[readFileSize];
+
+            // int cnt_page = (total_font_cnt + 6) / 6;'
+            int cnt_page = total_font_cnt / 400 + 1;
+            int uIdx = 0;
+            int p = strUnicodes.indexOf(_str);
+            uIdx = p / 5;
+            int pixbeginidx = unicode_begin_idx + uIdx * font_page;
+            file.seek(pixbeginidx);
+            file.read(buf_seek_pixdata, font_page);
+            String su = getStringFromChars(buf_seek_pixdata, font_page);
+
+            ret += getPixDataFromHex(su);
+        }
+        file.close();
+    }
+    // LittleFS.end();
     return ret;
 }
