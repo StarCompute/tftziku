@@ -29,14 +29,14 @@ GB2312 字符集创建的字库16号字体，tft_espi 的.vlw格式大约1M，�
 
 使用说明：
 
-包含文件common.h；
-创建 TFT_eSPI tft = TFT_eSPI();
-调用 DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
-调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
+ - 包含文件common.h；
+ - 创建 TFT_eSPI tft = TFT_eSPI();
+ - 调用 DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
+ - 调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
 
 
 注意：
 
-调用getPixBinStrFromString2 在本例中是在DrawStr中使用的；
-存在进一步优化的可能
+ - 调用getPixBinStrFromString2 在本例中是在DrawStr中使用的；
+ - 存在进一步优化的可能
 
