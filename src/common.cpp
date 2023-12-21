@@ -1,5 +1,24 @@
 #include <Arduino.h>
 #include <LittleFS.h>
+#include <TFT_eSPI.h>
+
+String strUnicodes = "";
+int unicode_begin_idx = 0;
+int font_unicode_cnt = 0;
+int total_font_cnt = 0;
+int font_size = 0;
+int font_page = 0;
+bool isInit=false;
+String fontFilePath="/x.font";
+// 下面代码在TFT屏幕输出文字
+int pX = 16;
+int pY = 0;
+int fontsize = 12;      // 字号
+int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
+int screenWidth = 160;
+
+int singleStrPixsAmount = fontsize * fontsize;
+
 
 // 转化字符数组为字符串
 String getStringFromChars(uint8_t *bs, int l)
@@ -177,12 +196,7 @@ String getPixDataFromHex(String s)
     // Serial.println(retNoReturn);
     return retNoReturn;
 }
-String strUnicodes = "";
-int unicode_begin_idx = 0;
-int font_unicode_cnt = 0;
-int total_font_cnt = 0;
-int font_size = 0;
-int font_page = 0;
+
 
 
 void initZhiku(String fontPath)
@@ -337,4 +351,39 @@ String getPixBinStrFromString(String displayString, String fontPath)
     }
     // LittleFS.end();
     return ret;
+}
+
+
+void DrawStr( TFT_eSPI &tftOutput,int x , int y , String str, int color)
+{
+
+    if(isInit==false){
+         initZhiku(fontFilePath);
+         isInit=true;
+    }
+
+  // 下面的代码显示对应的汉字在TFT屏幕上
+
+  String strBinData = getPixBinStrFromString2(str, fontFilePath);
+  // Serial.println(strBinData);
+  amountDisplay = screenWidth / fontsize; // 如果不愿意动态计算显示数量可以注释调这一行
+  int l1 = singleStrPixsAmount * amountDisplay;
+  int l2 = fontsize * amountDisplay;
+  for (int i = 0; i < strBinData.length(); i++)
+  {
+
+    if (strBinData[i] == '1')
+    {
+      pX = int(i % fontsize) + int(i / singleStrPixsAmount) * fontsize - int(i / l1) * l2;
+
+      // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
+      pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / fontsize) + int(i / l1) * fontsize;
+
+      tftOutput.drawPixel(pX + x, pY + y, color);
+    }
+    // else
+    // {
+    //   // tft.drawPixel(pX + x, pY + y, TFT_BLACK);
+    // }
+  }
 }

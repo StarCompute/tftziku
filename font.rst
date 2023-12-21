@@ -132,7 +132,7 @@ u597d 是"好”字的unicode编码
 
 .. code-block:: c
 
-    String strBinDisplay = getPixBinStrFromString("这是一个软字体的显示你看看再多如何显示出来啊！你说你项羽突然的自我伍佰向天再借五百年");
+    String strBinDisplay = getPixBinStrFromString2("这是一个软字体的显示你看看再多如何显示出来啊！你说你项羽突然的自我伍佰向天再借五百年");
 
     // 下面代码在终端输出文字点阵。
     Serial.println(strBinDisplay.length());
@@ -184,9 +184,17 @@ u597d 是"好”字的unicode编码
 		    1 1       1
 
 
+在单片机中直接调用方式：
+
+ 包含文件common.h；
+ 创建 TFT_eSPI tft = TFT_eSPI();
+============================
+
+.. code-block:: c
+    DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 
 
 
-通过单片机在tft屏幕显示
+通过单片机在tft屏幕显示，以下是方便自行调用
 ============================
 
 .. code-block:: c

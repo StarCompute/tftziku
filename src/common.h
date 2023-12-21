@@ -1,12 +1,6 @@
 #include <Arduino.h>
+#include <TFT_eSPI.h>
 
-// 使用说明
-// 1，包含本文件；
-// 2，调用initZhiku 初始化；
-// 3，调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
-// 注意3，调用getPixBinStrFromString2 在本例中是在DrawStr中使用的
-
-void initZhiku(String fontPath);
 String getStringFromChars(uint8_t * bs,int l);
 String getStringFromChars2(uint8_t *bs, int l);
 String getUnicodeFromUTF82(String s);
@@ -14,9 +8,9 @@ String getUnicodeFromUTF8(String s);
 int *getBin(int Dec);
 int *getBin2(uint8_t data);
 String getPixDataFromHex(String s);
-void DrawStr(int, int, String,int color);
-
-
+void DrawStr(TFT_eSPI &tftOutput,int x, int y, String str,int color);
+// void DrawStr( TFT_eSPI &tftOutput,int x = 0, int y = 0, String str = "星算", int color = TFT_GREEN);
+void initZhiku(String fontPath);
 String getPixBinStrFromString2(String displayString, String fontPath);
 
 int getStrCountFromFontFile(uint8_t * bs);

@@ -11,6 +11,8 @@
 |:------------------|:-----------------------------------------------------------------------|
 | font.rst                | 整体对于解决方案的说明  |
 | src/getunicode.py       | 使用Python 创建字库  |
+| src/getunicodeV2.py       | 使用Python 创建字库 (目前在用版本) |
+| src/getunicodeV3.py       | 对创建字库换成了32进制版本，压缩20%的体积，暂未用|
 | src/main.c              | 在esp32中调用字库并显示到tft屏幕  |
 | fileo.h fileo.c         | 暂时保留在项目说供以后使用  |
  
@@ -22,3 +24,17 @@ GB2312 字符集创建的字库16号字体，tft_espi 的.vlw格式大约1M，�
 
 
 提请注意：这只是一个小型的方案，提供思路和代码参考，并且经过验证可行；如果你要使用是在有些地方是需要配套修改的
+
+使用说明：
+
+ 包含文件common.h；
+ 创建 TFT_eSPI tft = TFT_eSPI();
+ 调用 DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
+ 调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
+
+
+注意：
+
+调用getPixBinStrFromString2 在本例中是在DrawStr中使用的；
+存在进一步优化的可能
+
