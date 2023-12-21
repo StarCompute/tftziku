@@ -22,17 +22,17 @@
 
 GB2312 字符集创建的字库16号字体，tft_espi 的.vlw格式大约1M，本方案507k; tft_espi装载并显示中文需要2秒以上，本方案大约0.3秒显示完。
 
-示例使用的是12号字体
+示例使用的是12号字体.
 
 
 提请注意：这只是一个小型的方案，提供思路和代码参考，并且经过验证可行；如果你要使用是在有些地方是需要配套修改的
 
 使用说明：
 
- 包含文件common.h；
- 创建 TFT_eSPI tft = TFT_eSPI();
- 调用 DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
- 调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
+包含文件common.h；
+创建 TFT_eSPI tft = TFT_eSPI();
+调用 DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
+调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
 
 
 注意：
