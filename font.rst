@@ -186,11 +186,13 @@ u597d 是"好”字的unicode编码
 
 在单片机中直接调用方式：
 
- 包含文件common.h；
- 创建 TFT_eSPI tft = TFT_eSPI();
+包含文件common.h；
+创建 TFT_eSPI tft = TFT_eSPI();
+
 ============================
 
 .. code-block:: c
+
     DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 
 
 
