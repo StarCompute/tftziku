@@ -8,17 +8,20 @@ int font_unicode_cnt = 0;
 int total_font_cnt = 0;
 int font_size = 0;
 int font_page = 0;
-bool isInit=false;
-String fontFilePath="/x.font";
-// 下面代码在TFT屏幕输出文字
+bool isInit = false;
+String fontFilePath = "/x.font";
+
 int pX = 16;
 int pY = 0;
-int fontsize = 12;      // 字号
+// int fontsize = 12;      // 字号
 int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
+// 下面的屏幕宽和高可以自行设定，在本处由于使用了tft屏幕驱动中的参数
+// int screenWidth = TFT_WIDTH;
+int screenHeight = TFT_HEIGHT;
+
 int screenWidth = 160;
-
-int singleStrPixsAmount = fontsize * fontsize;
-
+// int screenHeight=128;
+int singleStrPixsAmount = 0;
 
 // 转化字符数组为字符串
 String getStringFromChars(uint8_t *bs, int l)
@@ -135,39 +138,39 @@ String getUnicodeFromUTF82(String s)
 // }
 
 // 把16进制字符转化成二进制
-int *getBin2(uint8_t data)
-{
-    static int a[8];
-    for (int i = 0; i < 8; i++)
-    {
-        if (data & 0x01)
-            a[i] = 1; // 1
-        else
-            a[i] = 0; // 0
-        data >>= 1;
-    }
-    return a;
-}
+// int *getBin2(uint8_t data)
+// {
+//     static int a[8];
+//     for (int i = 0; i < 8; i++)
+//     {
+//         if (data & 0x01)
+//             a[i] = 1; // 1
+//         else
+//             a[i] = 0; // 0
+//         data >>= 1;
+//     }
+//     return a;
+// }
 
-// 十进制转二进制字符
-int *getBin(int Dec)
-{
-    //  Dec=128;
-    static int a[8];
-    for (int i = 7; i >= 0; i--)
-    {
-        if (pow(2, i) <= Dec)
-        {
-            Dec = Dec - pow(2, i);
-            a[7 - i] = 1;
-        }
-        else
-        {
-            a[7 - i] = 0;
-        }
-    }
-    return a;
-};
+// // 十进制转二进制字符
+// int *getBin(int Dec)
+// {
+//     //  Dec=128;
+//     static int a[8];
+//     for (int i = 7; i >= 0; i--)
+//     {
+//         if (pow(2, i) <= Dec)
+//         {
+//             Dec = Dec - pow(2, i);
+//             a[7 - i] = 1;
+//         }
+//         else
+//         {
+//             a[7 - i] = 0;
+//         }
+//     }
+//     return a;
+// };
 
 // 从字符的像素16进制字符重新转成二进制字符串
 String getPixDataFromHex(String s)
@@ -197,10 +200,10 @@ String getPixDataFromHex(String s)
     return retNoReturn;
 }
 
-
-
 void initZhiku(String fontPath)
 {
+    if (isInit == true)
+        return;
     LittleFS.begin();
     if (LittleFS.exists(fontPath))
     {
@@ -239,6 +242,7 @@ void initZhiku(String fontPath)
         file.close();
     }
     // LittleFS.end();
+    isInit = true;
 }
 
 // 从字库文件获取字符对应的二进制编码字符串
@@ -352,38 +356,102 @@ String getPixBinStrFromString(String displayString, String fontPath)
     // LittleFS.end();
     return ret;
 }
-
-
-void DrawStr( TFT_eSPI &tftOutput,int x , int y , String str, int color)
+// 判断是否ansi字符
+bool chkAnsi(unsigned char c)
 {
-
-    if(isInit==false){
-         initZhiku(fontFilePath);
-         isInit=true;
-    }
-
-  // 下面的代码显示对应的汉字在TFT屏幕上
-
-  String strBinData = getPixBinStrFromString2(str, fontFilePath);
-  // Serial.println(strBinData);
-  amountDisplay = screenWidth / fontsize; // 如果不愿意动态计算显示数量可以注释调这一行
-  int l1 = singleStrPixsAmount * amountDisplay;
-  int l2 = fontsize * amountDisplay;
-  for (int i = 0; i < strBinData.length(); i++)
-  {
-
-    if (strBinData[i] == '1')
+    if (c >= 0 && c <= 127)
+        return true;
+    return false;
+}
+void DrawSingleStr(TFT_eSPI &tftOutput, int x, int y, String strBinData, int c, bool ansiChar)
+{
+    // 如果是ansi字符则只显示一半
+    int lw = ansiChar == false ? font_size : font_size / 2;
+    for (int i = 0; i < strBinData.length(); i++)
     {
-      pX = int(i % fontsize) + int(i / singleStrPixsAmount) * fontsize - int(i / l1) * l2;
 
-      // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
-      pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / fontsize) + int(i / l1) * fontsize;
-
-      tftOutput.drawPixel(pX + x, pY + y, color);
+        if (strBinData[i] == '1')
+        {
+            int pX1 = int(i % font_size);
+            int pY1 = int(i / font_size);
+            tftOutput.drawPixel(pX1 + x, pY1 + y, c);
+        }
     }
-    // else
+}
+// DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
+// 位置计算和字符显示分开
+void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
+{
+    initZhiku(fontFilePath);
+    String strUnicode = getUnicodeFromUTF82(str);
+    singleStrPixsAmount = font_size * font_size;
+    String strBinData = getPixBinStrFromString2(str, fontFilePath);
+    int px = 0;
+    int py = 0;
+    // for (int i = 0; i < strBinData.length() / singleStrPixsAmount; i++)
     // {
-    //   // tft.drawPixel(pX + x, pY + y, TFT_BLACK);
+    //     px = x + font_size * i;
+    //     py = y;
+    //     DrawSingleStr(tftOutput, px, py, strBinData.substring(singleStrPixsAmount * i, (singleStrPixsAmount) + singleStrPixsAmount * i), c, true);
     // }
-  }
+    px = x;
+    py = y;
+    for (int l = 0; l < strUnicode.length() / 4; l++)
+    {
+
+        String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
+        int f = 0;
+        sscanf(childUnicode.c_str(), "%x", &f);
+        if (f <= 127)
+        {
+            if ((px + font_size / 2) > screenWidth)
+            {
+                // Serial.println(px + font_size / 2);
+                px = 0;
+                py += font_size;
+            }
+            DrawSingleStr(tftOutput, px, py, strBinData.substring(singleStrPixsAmount * l, (singleStrPixsAmount) + singleStrPixsAmount * l), c, true);
+            px += font_size / 2;
+        }
+        else
+        {
+            if ((px + font_size) > screenWidth)
+            {
+                px = 0;
+                py += font_size;
+            }
+            DrawSingleStr(tftOutput, px, py, strBinData.substring(singleStrPixsAmount * l, (singleStrPixsAmount) + singleStrPixsAmount * l), c, true);
+            px += font_size;
+        }
+    }
+
+}
+void DrawStr(TFT_eSPI &tftOutput, int x, int y, String str, int color)
+{
+    initZhiku(fontFilePath);
+    singleStrPixsAmount = font_size * font_size;
+    // 下面的代码显示对应的汉字在TFT屏幕上
+
+    String strBinData = getPixBinStrFromString2(str, fontFilePath);
+    // Serial.println(strBinData);
+    amountDisplay = screenWidth / font_size; // 如果不愿意动态计算显示数量可以注释调这一行
+    int l1 = singleStrPixsAmount * amountDisplay;
+    int l2 = font_size * amountDisplay;
+    for (int i = 0; i < strBinData.length(); i++)
+    {
+
+        if (strBinData[i] == '1')
+        {
+            pX = int(i % font_size) + int(i / singleStrPixsAmount) * font_size - int(i / l1) * l2;
+
+            // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
+            pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / font_size) + int(i / l1) * font_size;
+
+            tftOutput.drawPixel(pX + x, pY + y, color);
+        }
+        // else
+        // {
+        //   // tft.drawPixel(pX + x, pY + y, TFT_BLACK);
+        // }
+    }
 }
