@@ -20,7 +20,7 @@ head_str_unicode = ""
 str_pix_content = ""
 strcontent = ""
 strlen = len(e)
-head_fontsize = 16
+head_fontsize = 32
 # 依照字体大小，计算单一字符最后转成二进制时的总长度
 max_fontchars=head_fontsize*head_fontsize
 if(head_fontsize*head_fontsize%8>0):max_fontchars=head_fontsize*head_fontsize+(8-(head_fontsize*head_fontsize%8))
@@ -74,6 +74,52 @@ def binTo32(num, b=32):
     num=int(num,2)
     return ((num == 0) and "0") or (baseN(num // b, b).lstrip("0") + "0123456789abcdefghijklmnopqrstuvwxyz"[num % b])
 
+
+def getPixsDataFromImg32Lite(img):
+    ss = ""
+    chars = ''
+    linechars = ""
+    hexchar = ""
+    for i in range(ypos, ypos+head_fontsize):
+        # for d in range(9,9+len(displatstr)*head_fontsize):
+        for d in range(10, 10+head_fontsize):
+            dotpix = img.getpixel((d, i))
+            # print(dotpix)
+            # 注意下面这个判断很重要，用于处理字体模糊的情况。
+            # 如果不这样处理，有些字模在较小字号时显示不正常
+            # 有些字体用很小的字号进行显示的时候，它的边缘是模糊的，不再是简单的两种颜色，所以必须用一定的像素值来判断获取
+            # 你可以自行调节下面的这个数值进行测试
+            if dotpix==1:
+                # img.getpixel()
+                ss += " 1"
+                chars += "1"
+
+            else:
+                ss += "  "
+                chars += "0"
+            
+          
+        ss += "\r\n"
+    
+    chars=chars.ljust(max_fontchars,'0')
+    for i in range(0,int(max_fontchars/8)):
+        linechars=chars[i*8:i*8+8]
+        # print(linechars)
+        hexchar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
+    
+    hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(max_fontchars/4), '0')
+    if(hexchar2!=hexchar):
+        print(hexchar,hexchar2,hexchar2==hexchar)
+        print(ss)
+    # 下面这个chars是字符对应模的二进制字符串
+
+    # print(chars)
+    # print(hexchar)
+    chars32=binTo32(chars)
+    # print(chars32)
+    return chars32
+
+
 def getPixsDataFromImg32(img):
     ss = ""
     chars = ''
@@ -117,6 +163,45 @@ def getPixsDataFromImg32(img):
     chars32=binTo32(chars)
     # print(chars32)
     return chars32
+
+
+
+def getPixsDataFromImgLite2(img):
+    ss = ""
+    chars = ''
+    linechars = ""
+    hexchar = ""
+    for i in range(ypos, ypos+head_fontsize):
+        # for d in range(9,9+len(displatstr)*head_fontsize):
+        for d in range(10, 10+head_fontsize):
+            dotpix = img.getpixel((d, i))
+            # print(dotpix)
+            # 注意下面这个判断很重要，用于处理字体模糊的情况。
+            # 如果不这样处理，有些字模在较小字号时显示不正常
+            # 有些字体用很小的字号进行显示的时候，它的边缘是模糊的，不再是简单的两种颜色，所以必须用一定的像素值来判断获取
+            # 你可以自行调节下面的这个数值进行测试
+            # print(dotpix)
+            chars+=str(dotpix)
+           
+            
+    # c=0
+    # for i in hexchar :
+    #     print(i,end="",flush=True)
+    #     if(c%head_fontsize==head_fontsize-1):print("")
+    #     c+=1
+ 
+    chars=chars.ljust(max_fontchars,'0')
+    for i in range(0,int(max_fontchars/8)):
+        linechars=chars[i*8:i*8+8]
+        # print(linechars)
+        hexchar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
+    
+    hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(max_fontchars/4), '0')
+    if(hexchar2!=hexchar):
+        print(hexchar,hexchar2,hexchar2==hexchar)
+        # print(ss)
+    return hexchar
+
 
 def getPixsDataFromImgLite(img):
     ss = ""
@@ -208,8 +293,8 @@ def getPixsDataFromImg(img):
     return hexchar
 
 
-im = Image.new('RGB', (256, 256), (0, 0, 0))
-
+# im = Image.new('RGB', (256, 256), (0, 0, 0))
+im = Image.new('P', (256, 256), (0, 0, 0))
 # 下面的simsun表示宋体，你可以自定义字体文件
 font = ImageFont.truetype("simsun.ttc", size=head_fontsize, encoding="gb")
 # font=ImageFont.FreeTypeFont(  size=head_fontsize)
@@ -226,7 +311,7 @@ for s1 in track(displatstr):
     draw.text((10, 10), str(s1), fill=(
         255, 255, 255), font=font, stroke_width=0)
     # im.save("d:/d321.bmp")
-    str_pix_content += str(getPixsDataFromImg32(im))
+    str_pix_content += str(getPixsDataFromImg32Lite(im))
     draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
     # print(".",end="",flush=True)
 
@@ -236,7 +321,7 @@ font_content = head_unicode_content+str_pix_content
 # # print(font_content)
 
 print("\r\n创建字体结束，开始写文件。")
-f=open("d:/x.font","w")
+f=open("d:/x_f"+str(head_fontsize)+"_b32.font","w")
 f.write(font_content)
 f.close()
 print("\r\n[bold magenta]写文件结束，字体已存储。[/bold magenta]\r\n")

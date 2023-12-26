@@ -9,13 +9,13 @@ e = ' 、。・ˉˇ〃々―～‖…‘’“”〔〕〈〉《》「」『』�
 asc = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
 s = ""
 e = e+asc
-# e="你"
+# e="2"
 # head_str_count
 head_str_unicode = ""
 str_pix_content = ""
 strcontent = ""
 strlen = len(e)
-head_fontsize = 16
+head_fontsize = 12
 # 依照字体大小，计算单一字符最后转成二进制时的总长度
 max_fontchars=head_fontsize*head_fontsize
 if(head_fontsize*head_fontsize%8>0):max_fontchars=head_fontsize*head_fontsize+(8-(head_fontsize*head_fontsize%8))
@@ -60,6 +60,42 @@ if (head_fontsize >= 18 and head_fontsize <= 20):
     ypos = 11
 
 
+def getPixsDataFromImgLite2(img):
+    ss = ""
+    chars = ''
+    linechars = ""
+    hexchar = ""
+    for i in range(ypos, ypos+head_fontsize):
+        # for d in range(9,9+len(displatstr)*head_fontsize):
+        for d in range(10, 10+head_fontsize):
+            dotpix = img.getpixel((d, i))
+            # print(dotpix)
+            # 注意下面这个判断很重要，用于处理字体模糊的情况。
+            # 如果不这样处理，有些字模在较小字号时显示不正常
+            # 有些字体用很小的字号进行显示的时候，它的边缘是模糊的，不再是简单的两种颜色，所以必须用一定的像素值来判断获取
+            # 你可以自行调节下面的这个数值进行测试
+            # print(dotpix)
+            chars+=str(dotpix)
+           
+            
+    # c=0
+    # for i in hexchar :
+    #     print(i,end="",flush=True)
+    #     if(c%head_fontsize==head_fontsize-1):print("")
+    #     c+=1
+ 
+    chars=chars.ljust(max_fontchars,'0')
+    for i in range(0,int(max_fontchars/8)):
+        linechars=chars[i*8:i*8+8]
+        # print(linechars)
+        hexchar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
+    
+    hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(max_fontchars/4), '0')
+    if(hexchar2!=hexchar):
+        print(hexchar,hexchar2,hexchar2==hexchar)
+        # print(ss)
+    return hexchar
+
 
 def getPixsDataFromImgLite(img):
     ss = ""
@@ -92,69 +128,65 @@ def getPixsDataFromImgLite(img):
         linechars=chars[i*8:i*8+8]
         # print(linechars)
         hexchar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
-    
+    print(ss)
     hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(max_fontchars/4), '0')
     if(hexchar2!=hexchar):
         print(hexchar,hexchar2,hexchar2==hexchar)
         print(ss)
     return hexchar
 
-def getPixsDataFromImg(img):
-    ss = ""
-    charlen = 0
-    chars = ''
-    linechars = ""
-    hexchar = ""
-    for i in range(ypos, ypos+head_fontsize):
-        # for d in range(9,9+len(displatstr)*head_fontsize):
-        for d in range(10, 10+head_fontsize):
-            dotpix = img.getpixel((d, i))
-            # print(dotpix)
-            # 注意下面这个判断很重要，用于处理字体模糊的情况。
-            # 如果不这样处理，有些字模在较小字号时显示不正常
-            # 有些字体用很小的字号进行显示的时候，它的边缘是模糊的，不再是简单的两种颜色，所以必须用一定的像素值来判断获取
-            # 你可以自行调节下面的这个数值进行测试
-            if dotpix[0] > 90 and dotpix[1] > 90 and dotpix[2] > 90:
-                # img.getpixel()
-                ss += " 1"
-                chars += "1"
+# def getPixsDataFromImg(img):
+#     ss = ""
+#     charlen = 0
+#     chars = ''
+#     linechars = ""
+#     hexchar = ""
+#     for i in range(ypos, ypos+head_fontsize):
+#         # for d in range(9,9+len(displatstr)*head_fontsize):
+#         for d in range(10, 10+head_fontsize):
+#             dotpix = img.getpixel((d, i))
+#             # print(dotpix)
+#             # 注意下面这个判断很重要，用于处理字体模糊的情况。
+#             # 如果不这样处理，有些字模在较小字号时显示不正常
+#             # 有些字体用很小的字号进行显示的时候，它的边缘是模糊的，不再是简单的两种颜色，所以必须用一定的像素值来判断获取
+#             # 你可以自行调节下面的这个数值进行测试
+#             if dotpix[0] > 90 and dotpix[1] > 90 and dotpix[2] > 90:
+#                 # img.getpixel()
+#                 ss += " 1"
+#                 chars += "1"
 
-            else:
-                ss += "  "
-                chars += "0"
-            charlen += 1
-            if (charlen % 8 == 0):
-                # print(chars)
-                linechars += chars
-                hexchar += hex(int(chars, 2)).removeprefix('0x').rjust(2, '0')
-                chars = ''
-            if (charlen == head_fontsize):  # 由于是取8位，对于12这种字体，需要自动补足4位
-                if (charlen % 8 > 0):
-                    chars = chars.ljust(8, "0")
-                    hexchar += hex(int(chars, 2)
-                                   ).removeprefix('0x').rjust(2, '0')
-                    # print(chars)
-                    linechars += chars
-                chars = ''
-                # print(linechars)
-                linechars = ''
-                charlen = 0
-        ss += "\r\n"
-    # print(ss)
-    # print(hexchar)
-    return hexchar
+#             else:
+#                 ss += "  "
+#                 chars += "0"
+#             charlen += 1
+#             if (charlen % 8 == 0):
+#                 # print(chars)
+#                 linechars += chars
+#                 hexchar += hex(int(chars, 2)).removeprefix('0x').rjust(2, '0')
+#                 chars = ''
+#             if (charlen == head_fontsize):  # 由于是取8位，对于12这种字体，需要自动补足4位
+#                 if (charlen % 8 > 0):
+#                     chars = chars.ljust(8, "0")
+#                     hexchar += hex(int(chars, 2)
+#                                    ).removeprefix('0x').rjust(2, '0')
+#                     # print(chars)
+#                     linechars += chars
+#                 chars = ''
+#                 # print(linechars)
+#                 linechars = ''
+#                 charlen = 0
+#         ss += "\r\n"
+#     # print(ss)
+#     # print(hexchar)
+#     return hexchar
 
 
-im = Image.new('RGB', (256, 256), (0, 0, 0))
+im = Image.new('P', (256, 256), (0, 0, 0))
 
 # 下面的simsun表示宋体，你可以自定义字体文件
 font = ImageFont.truetype("simsun.ttc", size=head_fontsize, encoding="gb")
-# font=ImageFont.FreeTypeFont(  size=head_fontsize)
-# ImageFont.
 draw = ImageDraw.Draw(im)
-
 displatstr = e
-
 ccc = ""
 # draw.
 print("开始创建字体，请等待：")
@@ -163,7 +195,7 @@ for s1 in displatstr:
     draw.text((10, 10), str(s1), fill=(
         255, 255, 255), font=font, stroke_width=0)
     # im.save("d:/d321.bmp")
-    str_pix_content += str(getPixsDataFromImgLite(im))
+    str_pix_content += str(getPixsDataFromImgLite2(im))
     draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
     print(".",end="",flush=True)
 
