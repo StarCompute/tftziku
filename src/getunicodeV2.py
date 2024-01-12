@@ -9,13 +9,14 @@ e = ' 、。・ˉˇ〃々―～‖…‘’“”〔〕〈〉《》「」『』�
 asc = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
 s = ""
 e = e+asc
-# e="2"
+# e="阵"
+head_fontsize = 12
 # head_str_count
 head_str_unicode = ""
 str_pix_content = ""
 strcontent = ""
 strlen = len(e)
-head_fontsize = 12
+
 # 依照字体大小，计算单一字符最后转成二进制时的总长度
 max_fontchars=head_fontsize*head_fontsize
 if(head_fontsize*head_fontsize%8>0):max_fontchars=head_fontsize*head_fontsize+(8-(head_fontsize*head_fontsize%8))
@@ -79,7 +80,7 @@ def getPixsDataFromImgLite2(img):
            
             
     # c=0
-    # for i in hexchar :
+    # for i in chars :
     #     print(i,end="",flush=True)
     #     if(c%head_fontsize==head_fontsize-1):print("")
     #     c+=1
