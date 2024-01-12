@@ -31,12 +31,11 @@ GB2312 字符集创建的字库16号字体，tft_espi 的.vlw格式大约1M，�
 
  - 包含文件common.h；
  - 创建 TFT_eSPI tft = TFT_eSPI();
- - 调用 DrawStr(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
- - 调用getPixBinStrFromString2 就可以获取对应的字符取模数据；
+ - 调用 DrawStr2(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
+ - 请参考Main.cpp文件
 
 
 注意：
 
- - 调用getPixBinStrFromString2 在本例中是在DrawStr中使用的；
- - 存在进一步优化的可能
+ - 存在进一步优化的空间，以后将会优化字体存储的编码为32或者64进制
 
