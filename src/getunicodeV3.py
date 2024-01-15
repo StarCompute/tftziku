@@ -25,16 +25,6 @@ e = e+asc
 # e="你"
 STR_CODE_64="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$"
 
-# 十进制转32进制
-def baseN(num, b):
-    return ((num == 0) and "0") or (baseN(num // b, b).lstrip("0") + "0123456789abcdefghijklmnopqrstuvwxyz"[num % b])
-
-# 2进制转32进制
-def binToHEX(num, b=32):
-    num=int(num,2)
-    # print(num)
-    return ((num == 0) and "0") or (baseN(num // b, b).lstrip("0") + "0123456789abcdefghijklmnopqrstuvwxyz"[num % b])
-
 def binTo64(num,b=64):
     num=int(num,2)
     return STR_CODE_64[num % b]
@@ -325,13 +315,7 @@ def getPixDataFromStr(displaystr,fontFile):
     
 # 注意，为了方便调用把字库存到了lib目录下
     
-createFont( e,"P", "simsun.ttc", 16,64)
-getPixDataFromStr("我爱帝都","lib/x_f16_b64.font")
+createFont( e,"P", "simsun.ttc", 12,64)
+getPixDataFromStr("我爱帝都","lib/x_f12_b64.font")
 
 
-# # print(binTo64("32"))
-# # print(binTo64("34"))
-# # print(binTo64("63"))
-# # print(binTo64("62"))
-# # print(binTo64("64"))
-# print(binTo64("101110"))
