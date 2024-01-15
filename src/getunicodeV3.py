@@ -1,5 +1,5 @@
 # 在V2版本的基础上，这个版本是尝试用32进制替换16进制，进一步压缩存储，当然这种压缩会导致单片机解码的时候会存在一些性能问题，基本可以忽略不计
-# 如果能够存储缩减1/5 ,这种方案在单片机上就有价值，因为加码附加的性能损耗不会比原来多 1/50 分之一
+# 如果能够存储缩减1/5 ,这种方案在单片机上就有重要价值，因为单片机上存储空间占用越少越好
 
 # 下面是以“爱”字存储的字库:
 # 0000011616u723101fc7e10221011207ffe420282047ff8040007f00a10112020c043301c0e0000
@@ -218,7 +218,7 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
     # print(font_content)
 
     print("\r\n创建字体结束，开始写文件。")
-    f=open("d:/x_f"+str(fontSize)+"_b"+str(binType)+".font","w")
+    f=open("lib/x_f"+str(fontSize)+"_b"+str(binType)+".font","w")
     f.write(font_content)
     f.close()
     print("\r\n[bold magenta]写文件结束，字体已存储。[/bold magenta]\r\n")
@@ -322,5 +322,8 @@ def getPixDataFromStr(displaystr,fontFile):
 # # # str = "我BCDEFGHIJKLMN"
 # e="天爱"
 # 
+    
+# 注意，为了方便调用把字库存到了lib目录下
+    
 createFont( e,"P", "simsun.ttc", 16,32)
-getPixDataFromStr("我爱帝都天安13门Cc","d:/x_f16_b32.font")
+getPixDataFromStr("我爱帝都天安13门Cc","lib/x_f16_b32.font")
