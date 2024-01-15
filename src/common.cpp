@@ -40,20 +40,20 @@ String getStringFromChars(uint8_t *bs, int l)
 }
 
 // 转化字符数组为字符串，下面这种方法看起来最简单，但是末尾多了一个尾巴。
-String getStringFromChars2(uint8_t *bs, int l)
-{
-    String ret;
-    ret = (char *)bs;
-    // int l=(int)(strlen(*bs));
-    // int l=(int)sizeof(bs) ;
-    // Serial.println(l);
-    // for (int i = 0; i < l; i++)
-    // {
-    //     ret += (char)bs[i];
-    // }
-    // Serial.println(ret);
-    return ret;
-}
+// String getStringFromChars2(uint8_t *bs, int l)
+// {
+//     String ret;
+//     ret = (char *)bs;
+//     // int l=(int)(strlen(*bs));
+//     // int l=(int)sizeof(bs) ;
+//     // Serial.println(l);
+//     // for (int i = 0; i < l; i++)
+//     // {
+//     //     ret += (char)bs[i];
+//     // }
+//     // Serial.println(ret);
+//     return ret;
+// }
 
 // 从字体文件中获取字符的总数量
 int getStrCountFromFontFile(uint8_t *bufs)
@@ -71,7 +71,7 @@ int getFontSizeFromFontFile(uint8_t *bufs)
 }
 
 // 把utf8编码字符转unicode编码
-String getUnicodeFromUTF82(String s)
+String getUnicodeFromUTF8(String s)
 {
     // Serial.println(s.length());
     // 32-127
@@ -112,6 +112,8 @@ int getFontPage(int font_size, int bin_type)
     int hexCount = 8;
     if (bin_type == 32)
         hexCount = 10;
+        if (bin_type == 64)
+        hexCount = 12;
     int hexAmount = int(total / hexCount);
     if (total % hexCount > 0)
     {
@@ -122,16 +124,18 @@ int getFontPage(int font_size, int bin_type)
     return hexAmount * 2;
 }
 
+
 // 从字符的像素16进制字符重新转成二进制字符串
-String getPixDataFromHex2(String s)
+String getPixDataFromHex(String s)
 {
     String ret = "";
     // Serial.println(s);
     int l = s.length();
-    String s32="0123456789abcdefghijklmnopqrstuvwxyz";
+    String s32="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
     // 注意，这里是两个字符进行的处理
     int cc=3;
     if (bin_type==32)cc=4;
+    if (bin_type==64)cc=5;
     for (int i = 0; i < l; i ++)
     {
         String ch = (String)s[i] ;
@@ -151,33 +155,6 @@ String getPixDataFromHex2(String s)
     // Serial.println(ret);
     // Serial.println(retNoReturn);
     return ret.substring(0,font_size*font_size);
-}
-
-// 从字符的像素16进制字符重新转成二进制字符串
-String getPixDataFromHex(String s)
-{
-    String ret = "";
-    // Serial.println(s);
-    int l = s.length();
-    // 注意，这里是两个字符进行的处理
-    for (int i = 0; i < l; i = i + 2)
-    {
-        String ch = (String)s[i] + (String)s[i + 1];
-        int d = 0;
-        sscanf(ch.c_str(), "%x", &d);
-        // 下面用了bitread来获取数字对应的二进制，bitread(value,k)是读取数字value中的二进制的第k位的值。
-        // 使用bitread就没有使用getBin这种方式了，但是保留了两种getbin函数
-        for (int k = 7; k >= 0; k--)
-        {
-            // Serial.print(sa[k]);
-            ret += bitRead(d, k);
-            // retNoReturn=retNoReturn+(String)sa[k];
-        }
-    }
-
-    // Serial.println(ret);
-    // Serial.println(retNoReturn);
-    return ret;
 }
 
 void initZhiku(String fontPath)
@@ -226,7 +203,7 @@ void initZhiku(String fontPath)
 }
 
 // 从字库文件获取字符对应的二进制编码字符串
-String getPixBinStrFromString2(String displayString, String fontPath)
+String getPixBinStrFromString(String strUnicode, String fontPath)
 {
 
     String ret = "";
@@ -235,7 +212,6 @@ String getPixBinStrFromString2(String displayString, String fontPath)
     {
         File file = LittleFS.open(fontPath);
         uint8_t buf_seek_pixdata[font_page];
-        String strUnicode = getUnicodeFromUTF82(displayString);
         String ff = "";
         for (int i = 0; i < strUnicode.length(); i = i + 4)
         {
@@ -252,7 +228,7 @@ String getPixBinStrFromString2(String displayString, String fontPath)
             file.read(buf_seek_pixdata, font_page);
             String su = getStringFromChars(buf_seek_pixdata, font_page);
             // Serial.println(su);
-            ret += getPixDataFromHex2(su);
+            ret += getPixDataFromHex(su);
         }
         file.close();
     }
@@ -288,9 +264,9 @@ void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
     initZhiku(fontFilePath);
     // return;
     // Serial.println("Init end.");
-    String strUnicode = getUnicodeFromUTF82(str);
+    String strUnicode = getUnicodeFromUTF8(str);
     singleStrPixsAmount = font_size * font_size;
-    String strBinData = getPixBinStrFromString2(str, fontFilePath);
+    String strBinData = getPixBinStrFromString(strUnicode, fontFilePath);
     // Serial.println(strBinData);
     int px = 0;
     int py = 0;
@@ -337,7 +313,7 @@ void DrawStr(TFT_eSPI &tftOutput, int x, int y, String str, int color)
     singleStrPixsAmount = font_size * font_size;
     // 下面的代码显示对应的汉字在TFT屏幕上
 
-    String strBinData = getPixBinStrFromString2(str, fontFilePath);
+    String strBinData = getPixBinStrFromString(str, fontFilePath);
     // Serial.println(strBinData);
     amountDisplay = screenWidth / font_size; // 如果不愿意动态计算显示数量可以注释调这一行
     int l1 = singleStrPixsAmount * amountDisplay;
