@@ -231,48 +231,7 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
     # 上面代码是创建字库
 
 
-
-
-# 下面代码是测试生产的字库
-
 def genPixDataFromHexData(hexData, fontSize,binType):
-    """从16进制编码生成二进制的像素编码
-
-    Args:
-        hexData (str): 16,32,64进制字符串
-        fontSize (int): 字号
-        binType (int): 存储编码方式，16或者32
-
-    Returns:
-        str: 二进制字符串
-    """    
-    rtn = ""
-    str_char=""
-    l = len(hexData)
-    # 设定不同存储进制情况下，字符对应不同的二进制编码长度
-    # 如果是16进制，则每次字符集应该是8位，反之10位
-    charlimit=8
-    if (binType==32):charlimit=10
-    if (binType==64):charlimit=12
-    # 下面的代码每次取两个Hex字符进行转化二进制编码
-    for c in range(int(l/2)):
-        childstr = hexData[c*2:c*2+2]
-        # 先把hex字符转成int数字，再转成二进制，最后按照长度进行左补齐
-        _tmpStr= bin(int(childstr, binType)).removeprefix('0b').rjust(charlimit, '0')
-        # print(_tmpStr)
-        # print(c,childstr,int(childstr,binType),_tmpStr,len(_tmpStr))
-        rtn +=_tmpStr
-    # print(rtn,len(rtn))
-    # 下面的代码处理生成出来的二进制为汉字的模式
-    for c in range(fontSize*fontSize):
-        if(c%fontSize==0):str_char+="\r\n"
-        str_char+=rtn[c]
-    print(str_char.replace('0',' '))
-   
-    return rtn
-
-
-def genPixDataFromHexData2(hexData, fontSize,binType):
     """从16进制编码生成二进制的像素编码
 
     Args:
@@ -354,7 +313,7 @@ def getPixDataFromStr(displaystr,fontFile):
         pixdata = f.read(font_page)
         # print(d,t,p,pidx,pixdata, font_size,font_page)
         # 转化字符数据集进行显示
-        genPixDataFromHexData2(pixdata, font_size,binType)
+        genPixDataFromHexData(pixdata, font_size,binType)
     # print(str_cnt_hex, str_cnt, font_size, p, e[pidx], pixbeginidx, seekidx)
     f.close()
 
