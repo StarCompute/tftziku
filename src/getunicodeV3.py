@@ -1,6 +1,14 @@
 # 在V2版本的基础上，这个版本是尝试用32进制替换16进制，进一步压缩存储，当然这种压缩会导致单片机解码的时候会存在一些性能问题，基本可以忽略不计
 # 如果能够存储缩减1/5 ,这种方案在单片机上就有价值，因为加码附加的性能损耗不会比原来多 1/50 分之一
 
+# 下面是以“爱”字存储的字库:
+# 0000011616u723101fc7e10221011207ffe420282047ff8040007f00a10112020c043301c0e0000
+# 下面是对上面字库存储编码的说明
+# 000001        存储字符数  ，16进制存储
+# 16            存储字号，本例16号
+# 16            字符存储编码，16或者32
+# u7231         字符unicode编码
+# 01fc7e10221011207ffe420282047ff8040007f00a10112020c043301c0e0000 字符存储数据
 
 from PIL import Image, ImageFont, ImageDraw
 from tqdm import tqdm
@@ -15,7 +23,6 @@ asc = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdef
 s = ""
 e = e+asc
 # e="你"
-# head_str_count
 
 
 # 十进制转32进制
@@ -29,21 +36,52 @@ def binToHEX(num, b=32):
     return ((num == 0) and "0") or (baseN(num // b, b).lstrip("0") + "0123456789abcdefghijklmnopqrstuvwxyz"[num % b])
 
 # 上面的函数转换有问题进行补足
-def conv32(binStr,binType):
+def convBinToChar(binStr,binType):
+    """转换二进制为16或者32进制进制
+
+    Args:
+        binStr (str): 要转换的字符串
+        binType (int): 16进制，或者32进制
+
+    Returns:
+        str: 转化后的字符串
+    """    
+    
     ret=""
+    # 获取每多少个字符进行转化
     charlimit=8
     if binType==32:charlimit=10
+    # binToHEX 的本身转换遇到8个0或者10个0,或者更多的0最后只返回一个0,所以必须单独按照进制长度来处理
     for s in range(0,len(binStr),charlimit):
+        # 如果长度不够需要补齐进行转换
         s1=binStr[s:s+charlimit].ljust(charlimit,"0")
-        
+        # 对于转化结果进行补0
         s2=binToHEX(s1,binType).rjust(2,"0")
         # print(s1,s2)
         ret+=s2
     # print(ret)
     return ret
 
-def getMaxCharLength(fontsize,binType):
-    total=fontsize*fontsize
+"""
+特别说明：
+假如12号字体，它的像素值为144，如果按照16进制编码每8个二进制，那么存储的字符长度就是144/8*2=36;
+如果按照32进制编码呢？它是10个二进制进行编码，所以就存在最后4个字符的编码问题 144/10=14 余 4,
+那么就必须考虑再补6位0，最后就是(14+1)*2=30。
+这两个长度在字库创建和使用中都需要计算。
+
+"""
+def getMaxCharLength(fontSize,binType):
+    """依照字号和编码格式获取存储的字符长度和最大的二进制编码值，因为必须进行补齐。
+
+    Args:
+        fontSize (int): 字号
+        binType (int): 存储编码方式，16或者32
+
+    Returns:
+        _type_: 返回值有两个，1，存储的字符长度；2 字符依照相关编码需要的最大补齐值
+    """ 
+    
+    total=fontSize*fontSize
     hexCount=8
     if(binType==32):hexCount=10
     hexAmount=int(total/hexCount)
@@ -55,14 +93,29 @@ def getMaxCharLength(fontsize,binType):
     # print(hexAmount*2,total)
     return hexAmount*2,total    
     
-def getPixsDataFromImg32Lite(img,pos,fontsize,maxfontchars,binType=32):
+def getPixsDataFromImg(img,pos,fontSize,maxfontchars,binType=32):
+    """从图像像素数据生成对应的字符编码集
+
+    Args:
+        img (Image): 图像文件
+        pos (int): 获取像素起始位置
+        fontSize (int): 字号
+        maxfontchars (int): 最大编码字符集长度
+        binType (int, optional): 存储字符使用的进制格式，16或者32. Defaults to 32.
+
+    Returns:
+        str: 像素编码字符串
+    """    
+    # ss用来直接显示
     ss = ""
+    # chars表示原始像素数据
     chars = ''
-    linechars = ""
-    hexchar = ""
-    for i in range(pos, pos+fontsize):
+    # linechars = ""
+    # hexChar = ""
+    # 从左到右，从上到下，交叉获取像素
+    for i in range(pos, pos+fontSize):
         # for d in range(9,9+len(displatstr)*head_fontsize):
-        for d in range(10, 10+fontsize):
+        for d in range(10, 10+fontSize):
             dotpix = img.getpixel((d, i))
             # print(dotpix)
             if dotpix==1:
@@ -76,32 +129,41 @@ def getPixsDataFromImg32Lite(img,pos,fontsize,maxfontchars,binType=32):
         ss += "\r\n"
     # print(chars,len(chars),maxfontchars)
     chars=chars.ljust(maxfontchars,'0')
-    for i in range(0,int(maxfontchars/8)):
-        linechars=chars[i*8:i*8+8]
-        # print(linechars)
-        hexchar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
+    # for i in range(0,int(maxfontchars/8)):
+    #     linechars=chars[i*8:i*8+8]
+    #     # print(linechars)
+    #     hexChar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
     
     # hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(maxfontchars/4), '0')
-    # if(hexchar2!=hexchar):
-    #     print(hexchar,hexchar2,hexchar2==hexchar)
+    # if(hexchar2!=hexChar):
+    #     print(hexChar,hexchar2,hexchar2==hexChar)
     #     print(ss)
     # 下面这个chars是字符对应模的二进制字符串
 
     # print(chars,len(chars))
     # print(ss)
-    # print(hexchar)
-    chars32=conv32(chars,binType)
+    # print(hexChar)
+
+    # 把对应的二进制编码字符集按照编码格式进行转化
+    chars32=convBinToChar(chars,binType)
     if(len(chars32)%2==1):chars32+="0"
     # print(chars32,len(chars32))
     return chars32
 
 
 def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType=32):
+    """创建字库
+
+    Args:
+        fontStr (str): 创建字库的字符
+        imgModel (str, optional): 图像模式. Defaults to "P".
+        fontName (str, optional): 字体文件名. Defaults to "simsun.ttc".
+        fontSize (int, optional): 字号. Defaults to 12.
+        binType (int, optional): 存储编码方式,16或者32. Defaults to 32.
+    """    
     str_pix_content = ""
     strlen = len(fontStr)
     # 依照字体大小，计算单一字符最后转成二进制时的总长度
-    # max_fontchars=fontSize*fontSize
-    # if(fontSize*fontSize%8>0):max_fontchars=fontSize*fontSize+(8-(fontSize*fontSize%8))
     charHexLen,max_fontchars=getMaxCharLength(fontSize,binType)
     print("总字符数：",strlen)
     strlen_hex = hex(strlen)
@@ -127,33 +189,28 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
             s += f.replace('0x', 'u00')+""
     # print(s)
     str_fmt = s
-
-    head_unicode_content = strlen_hex_fmt+head_fontsize_fmt + str_fmt
+    # 字库文件文件头
+    head_unicode_content = strlen_hex_fmt+head_fontsize_fmt+str(binType) + str_fmt
 
 
     ypos=11
     # im = Image.new('RGB', (256, 256), (0, 0, 0))
+    # 画图使用了P模式，避免了RGB导致的模糊影响
     im = Image.new(imgModel, (256, 256), (0, 0, 0))
-    # 下面的simsun表示宋体，你可以自定义字体文件
     font = ImageFont.truetype(fontName, size=fontSize, encoding="gb")
-    # font=ImageFont.FreeTypeFont(  size=head_fontsize)
-    # ImageFont.
     draw = ImageDraw.Draw(im)
 
 
-    # draw.
     print("开始创建字体，请等待：")
-    # print(fontStr)
     for s1 in track(fontStr):
-
         draw.text((10, 10), str(s1), fill=(
             255, 255, 255), font=font, stroke_width=0)
         # im.save("d:/d321.bmp")
-        charHex=str(getPixsDataFromImg32Lite(im,ypos,fontSize,max_fontchars,binType))
+        # 从图像中解析像素并且转化成对应的编码数据集
+        charHex=str(getPixsDataFromImg(im,ypos,fontSize,max_fontchars,binType))
         # print(charHexLen,len(charHex),max_fontchars)
         str_pix_content += charHex
         draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
-        # print(".",end="",flush=True)
 
     # print(str_pix_content)
     print(len(str_pix_content))
@@ -172,68 +229,91 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
 
 # 下面代码是测试生产的字库
 
-# 从16进制编码生成二进制的像素编码
-def genPixDataFromHexData(str, size,binType):
+# 
+def genPixDataFromHexData(hexData, fontSize,binType):
+    """从16进制编码生成二进制的像素编码
+
+    Args:
+        hexData (str): 16进制字符串
+        fontSize (int): 字号
+        binType (int): 存储编码方式，16或者32
+
+    Returns:
+        str: 二进制字符串
+    """    
     rtn = ""
     str_char=""
-    l = len(str)
+    l = len(hexData)
+    # 设定不同存储进制情况下，字符对应不同的二进制编码长度
+    # 如果是16进制，则每次字符集应该是8位，反之10位
     charlimit=8
     if (binType==32):charlimit=10
+    # 下面的代码每次取两个Hex字符进行转化二进制编码
     for c in range(int(l/2)):
-        childstr = str[c*2:c*2+2]
-        
+        childstr = hexData[c*2:c*2+2]
+        # 先把hex字符转成int数字，再转成二进制，最后按照长度进行左补齐
         _tmpStr= bin(int(childstr, binType)).removeprefix('0b').rjust(charlimit, '0')
         # print(_tmpStr)
         # print(c,childstr,int(childstr,binType),_tmpStr,len(_tmpStr))
         rtn +=_tmpStr
     # print(rtn,len(rtn))
-    for c in range(size*size):
-        
-        if(c%size==0):str_char+="\r\n"
+    # 下面的代码处理生成出来的二进制为汉字的模式
+    for c in range(fontSize*fontSize):
+        if(c%fontSize==0):str_char+="\r\n"
         str_char+=rtn[c]
-    # print(rtn.replace('0','0'))
     print(str_char.replace('0',' '))
    
     return rtn
 
 
 # 从字符获取像素编码
-def getPixDataFromStr(displaystr,fontFile,binType):
+def getPixDataFromStr(displaystr,fontFile):
+    """从字符获取像素编码
+
+    Args:
+        displaystr (str): 要显示的字符
+        fontFile (str): 要使用的字库文件路径
+    """    
     # 下面的代码读取字库并且显示对应的内容
     f = open(fontFile, "r")
+
+    # 读取总字数
     str_cnt_hex = f.read(6)
     str_cnt = int(str_cnt_hex, 16)
+    # 读取字号
     font_size = int(f.read(2))
-    print(font_size)
-    
-    str_uinicode = ""
+    # 读取字符采用何种存储编码，16或者32
+    binType=int(f.read(2))
+    # str_uinicode = ""
+    # 读取所有字符对应的unicode编码集
     str_uinicode = f.read(str_cnt*5)
-    unicode_begin_idx = 6+2+str_cnt*5
-    # binLen=8
-    # if(binLen==32):binLen=10
-    # font_page = int(font_size*font_size/(binLen)*2)
-    # # font_page=64
-    # # if(binType==32):font_page=52
-    
-    # if(font_size*font_size%binLen>0):font_page+=2
+    # 计算基础偏移量
+    unicode_begin_idx = 6+2+2+str_cnt*5
+
+    # 根据字号计算每个字符的存储长度
     font_page,maxlen=getMaxCharLength(font_size,binType)
     print("读取长度:",font_page)
-    # font_page=50
     for d in displaystr:
+        # 计算每个待显示字符对应的unicode编码，ascii和中文的处理不一样
         if (ord(d) > 129):
             t = d.encode("unicode_escape").decode().removeprefix("\\")
         else:
             t = hex(ord(d))
             t = t.replace('0x', 'u00')+""
+        # 在unicode字符集中找到相关的字符，获取其位置，依照位置在到字符存储集中寻找
         p = str_uinicode.find(t)
+        # 计算字符序号
         pidx = int(p/5)
         # print(unicode_begin_idx+pidx*font_page)
+        # 计算字符存储的位置
         pixbeginidx = unicode_begin_idx+pidx*font_page
+        # 移动读取指针
         seekidx = f.seek(pixbeginidx, 0)
+        # 读取对应的字符数据
         pixdata = f.read(font_page)
         # print(d,t,p,pidx,pixdata, font_size,font_page)
+        # 转化字符数据集进行显示
         genPixDataFromHexData(pixdata, font_size,binType)
-        # return
     # print(str_cnt_hex, str_cnt, font_size, p, e[pidx], pixbeginidx, seekidx)
     f.close()
 
@@ -242,7 +322,5 @@ def getPixDataFromStr(displaystr,fontFile,binType):
 # # # str = "我BCDEFGHIJKLMN"
 # e="天爱"
 # 
-createFont( e,"P", "simsun.ttc", 32,32)
-getPixDataFromStr("我爱帝都天安123门ABC abc","d:/x_f32_b32.font",32)
-# getMaxCharLength(12,32)
-# 16编码的12和16测试都对的
+createFont( e,"P", "simsun.ttc", 16,32)
+getPixDataFromStr("我爱帝都天安13门Cc","d:/x_f16_b32.font")
