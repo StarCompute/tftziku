@@ -167,9 +167,13 @@ void initZhiku(String fontPath)
         free(buf_total_str_unicode);
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         file.close();
+        isInit = true;
+    }
+    else{
+        Serial.println("找不到字库文件。");
     }
     // LittleFS.end();
-    isInit = true;
+    
 }
 
 // 从字库文件获取字符对应的二进制编码字符串
@@ -232,6 +236,10 @@ void DrawSingleStr(TFT_eSPI &tftOutput, int x, int y, String strBinData, int c, 
 void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
 {
     initZhiku(fontFilePath);
+    if(isInit==false){
+        Serial.println("字库初始化失败");
+        return;
+    }
     // return;
     // Serial.println("Init end.");
     String strUnicode = getUnicodeFromUTF8(str);
