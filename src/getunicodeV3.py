@@ -23,7 +23,7 @@ asc = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdef
 s = ""
 e = e+asc
 # e="你"
-STR_CODE_64="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$"
+STR_CODE_64="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$" #为了避免不必要的可能异常，这里的字符数是超过了64位
 
 def binTo64(num,b=64):
     num=int(num,2)
