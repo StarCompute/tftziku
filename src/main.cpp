@@ -12,7 +12,7 @@ void setup()
   tft.setRotation(1);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN);
-  DrawStr2(tft,30, 40, "清澈的爱只为中国", TFT_GREEN);
+  DrawStr2(tft,20, 50, "清澈的爱只为中国", TFT_GREEN);
 }
 
 void loop()
