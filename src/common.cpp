@@ -39,36 +39,6 @@ String getStringFromChars(uint8_t *bs, int l)
     return ret;
 }
 
-// 转化字符数组为字符串，下面这种方法看起来最简单，但是末尾多了一个尾巴。
-// String getStringFromChars2(uint8_t *bs, int l)
-// {
-//     String ret;
-//     ret = (char *)bs;
-//     // int l=(int)(strlen(*bs));
-//     // int l=(int)sizeof(bs) ;
-//     // Serial.println(l);
-//     // for (int i = 0; i < l; i++)
-//     // {
-//     //     ret += (char)bs[i];
-//     // }
-//     // Serial.println(ret);
-//     return ret;
-// }
-
-// 从字体文件中获取字符的总数量
-int getStrCountFromFontFile(uint8_t *bufs)
-{
-    static uint8_t buf_total_str[6];
-    String strCount = getStringFromChars(bufs, 6);
-    // 因为使用的是16进制存储，所以必须加一次转换
-    return strtoll(strCount.c_str(), NULL, 16);
-}
-// 从字体文件中获取字符字号
-int getFontSizeFromFontFile(uint8_t *bufs)
-{
-    String strFontSize = getStringFromChars(bufs, 2);
-    return strFontSize.toInt();
-}
 
 // 把utf8编码字符转unicode编码
 String getUnicodeFromUTF8(String s)
@@ -105,7 +75,7 @@ String getUnicodeFromUTF8(String s)
     return string_to_hex;
 }
 
-
+// 依照字号和编码方式计算每个字符存储展位
 int getFontPage(int font_size, int bin_type)
 {
     int total = font_size * font_size;
