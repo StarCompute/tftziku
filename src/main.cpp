@@ -17,7 +17,7 @@ void setup()
   //  tft.drawLine(16,46,16,66,TFT_WHITE);
   //  tft.drawLine(128,46,128,66,TFT_WHITE);
    tft.drawFastHLine(16,66,112,TFT_LIGHTGREY);
-  DrawStr2(tft,20, 50, "清澈的爱只为中国", TFT_GREEN);
+  DrawStr2(tft,10, 50, "清澈的爱只为中国", TFT_GREEN);
  
 }
 

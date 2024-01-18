@@ -324,7 +324,7 @@ def getPixDataFromStr(displaystr,fontFile):
 # 注意，为了方便调用把字库存到了lib目录下
 
 _font_size=16
-_bin_type=33
+_bin_type=64
 createFont( FONT_ALL,"P", "simsun.ttc", _font_size,_bin_type)
 # 下面这行用于在终端输出显示字库是否创建正确
 # getPixDataFromStr("我爱帝都","font/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
@@ -336,6 +336,6 @@ import os
 os.system("cd ..")
 # os.system("move  lib\\x_f"+str(_font_size)+"_b"+str(_bin_type)+".font data\\x.font")
 # 请注意检查下面pio.exe 的配置地址和--environment 后esp32dev 应该为你的配置，这个配置就是你platform.ini中的[env:xxx]中这个xxx
-# os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment esp32dev")
+os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment esp32dev")
 
 
