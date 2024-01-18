@@ -147,7 +147,7 @@ def getPixsDataFromImg(img,pos,fontSize,maxfontchars,binType=32):
     return chars32
 
 
-def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType=32):
+def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType=64):
     """创建字库
 
     Args:
@@ -155,8 +155,12 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
         imgModel (str, optional): 图像模式. Defaults to "P".
         fontName (str, optional): 字体文件名. Defaults to "simsun.ttc".
         fontSize (int, optional): 字号. Defaults to 12.
-        binType (int, optional): 存储编码方式,16或者32. Defaults to 32.
+        binType (int, optional): 存储编码方式,16，32或者64. Defaults to 64.
     """    
+    if binType not in (16,32,64):
+        print("\r\n[bold red]binType存储进制无效，应该为16，32或者64\r\n[/bold red]")
+        return
+    
     str_pix_content = ""
     strlen = len(fontStr)
     # 依照字体大小，计算单一字符最后转成二进制时的总长度
@@ -214,10 +218,15 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
     # print(font_content)
 
     print("\r\n创建字体结束，开始写文件。")
-    f=open("lib/x_f"+str(fontSize)+"_b"+str(binType)+".font","w")
+    fontSavePath="font/x_f"+str(fontSize)+"_b"+str(binType)+".font"
+    # fontSavePath="d:/x_f"+str(fontSize)+"_b"+str(binType)+".font"
+    f=open(fontSavePath,"w")
     f.write(font_content)
     f.close()
-    print("\r\n[bold magenta]写文件结束，字体已存储。[/bold magenta]\r\n")
+    f=open("data/x.font","w")
+    f.write(font_content)
+    f.close()
+    print("\r\n[bold magenta]写文件结束，字体已存储到："+fontSavePath+"。[/bold magenta]\r\n")
     # 上面代码是创建字库
 
 
@@ -314,17 +323,19 @@ def getPixDataFromStr(displaystr,fontFile):
     
 # 注意，为了方便调用把字库存到了lib目录下
 
-_font_size=12
-_bin_type=64
+_font_size=16
+_bin_type=33
 createFont( FONT_ALL,"P", "simsun.ttc", _font_size,_bin_type)
 # 下面这行用于在终端输出显示字库是否创建正确
-getPixDataFromStr("我爱帝都","lib/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
+# getPixDataFromStr("我爱帝都","font/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
+
+
 
 # 注意下面的代码是在platformio环境中使用，在字库创建完毕后进行自动上传字库到esp32中
 import os
 os.system("cd ..")
-os.system("move  lib\\x_f"+str(_font_size)+"_b"+str(_bin_type)+".font data\\x.font")
+# os.system("move  lib\\x_f"+str(_font_size)+"_b"+str(_bin_type)+".font data\\x.font")
 # 请注意检查下面pio.exe 的配置地址和--environment 后esp32dev 应该为你的配置，这个配置就是你platform.ini中的[env:xxx]中这个xxx
-os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment esp32dev")
+# os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment esp32dev")
 
 

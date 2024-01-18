@@ -42,8 +42,8 @@ GB2312 字符集创建的字库16号字体，tft_espi 的.vlw格式大约1M，�
 字体的创建
  
  - 直接运行 getuncodeV3.py 创建相应的GB2312 完整字符的字库文件
- - 如果只打算创建部分字符的字库，那么就对createFont( e,"P", "simsun.ttc", 12,64) 中的变量e进行赋值，然后运行生产字库；
- - getuncodeV3.py 创建的字库为了管理方便，命名使用"lib/x_f"+str(fontSize)+"_b"+str(binType)+".font" 方式进行存储；
+ - 如果只打算创建部分字符的字库，那么就对createFont( FONT_ALL,"P", "simsun.ttc", 12,64) 中的变量FONT_ALL进行赋值，然后运行生产字库；
+ - getuncodeV3.py 创建的字库为了管理方便，命名使用"font/x_f"+str(fontSize)+"_b"+str(binType)+".font" 方式进行存储；
  - 改名字库文件为x.font，放置到arduino项目的data目录下上传到单片机就可以调用了；
  
  写到上面时，我去改了一下代码，实现了字库创建后自动上传到esp32中，牛逼如我，哈哈哈哈
@@ -52,7 +52,7 @@ GB2312 字符集创建的字库16号字体，tft_espi 的.vlw格式大约1M，�
 
 esp32上调用
 
- - 包含文件common.h；
+ - 包含文件xfont.h；
  - 创建 TFT_eSPI tft = TFT_eSPI();
  - 调用 DrawStr2(tft,10, 2, "空气温度：", TFT_GREEN); 在屏幕上输出文字
  - 请参考Main.cpp文件
@@ -65,4 +65,6 @@ esp32上调用
 2024.01.16 字库的创建和单片机中调用都升级到了64位；
 
 2024.01.16 字库生成后自动上传到单片机；
+
+2024.01.18 修改核心文件命名，避免相关冲突 
 
