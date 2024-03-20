@@ -19,6 +19,8 @@ void DrawStr2(TFT_eSPI &tftOutput,int x, int y, String str,int color);
 
 // 初始化字库
 void initZhiku(String fontPath);
+// 从字库文件获取字符对应的编码字符串
+String getCodeDataFromFile(String strUnicode, String fontPath);
 // 从字库文件获取字符对应的二进制编码字符串
 String getPixBinStrFromString(String strUnicode, String fontPath);
 // 依照字号和编码方式计算每个字符存储展位
