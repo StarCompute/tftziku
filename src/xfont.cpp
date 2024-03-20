@@ -2,11 +2,11 @@
 #include <LittleFS.h>
 #include <TFT_eSPI.h>
 
-String strUnicodes = "";
+String strAllUnicodes = "";
 int unicode_begin_idx = 0;
 int font_unicode_cnt = 0;
 int total_font_cnt = 0;
-int bin_type = 16;
+int bin_type = 64;
 int font_size = 0;
 int font_page = 0;
 bool isInit = false;
@@ -20,7 +20,7 @@ int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量�
 // int screenWidth = TFT_WIDTH;
 int screenHeight = TFT_HEIGHT;
 
-int screenWidth = 160;
+int screenWidth = TFT_WIDTH;
 // int screenHeight=128;
 int singleStrPixsAmount = 0;
 
@@ -32,10 +32,13 @@ String getStringFromChars(uint8_t *bs, int l)
     // int l=(int)(strlen(*bs));
     // int l=sizeof(bs) ;
     // Serial.println(l);
+    ret.reserve(l);
     for (int i = 0; i < l; i++)
     {
         ret += (char)bs[i];
+        // Serial.println(ret.length());
     }
+    
     return ret;
 }
 
@@ -82,7 +85,7 @@ int getFontPage(int font_size, int bin_type)
     int hexCount = 8;
     if (bin_type == 32)
         hexCount = 10;
-        if (bin_type == 64)
+    if (bin_type == 64)
         hexCount = 12;
     int hexAmount = int(total / hexCount);
     if (total % hexCount > 0)
@@ -134,7 +137,7 @@ void initZhiku(String fontPath)
     LittleFS.begin();
     if (LittleFS.exists(fontPath))
     {
-        File file = LittleFS.open(fontPath);
+        File file = LittleFS.open(fontPath,"r");
 
         static uint8_t buf_total_str[6];
         static uint8_t buf_font_size[2];
@@ -155,15 +158,16 @@ void initZhiku(String fontPath)
         // Serial.println(s1);
         // Serial.println(s2);
         // Serial.println(s3);
-        // Serial.println(font_page);
+        Serial.println(font_page);
         // 待读取的总编码长度,每个字都对应着一个uxxxx，所以乘5
         font_unicode_cnt = total_font_cnt * 5;
         // String font_unicode = "";
         uint8_t *buf_total_str_unicode;
         buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
+        Serial.println(font_unicode_cnt);
         file.read(buf_total_str_unicode, font_unicode_cnt);
-        strUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
-        // Serial.println(strUnicodes.length());
+        strAllUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
+        Serial.println(strAllUnicodes.length());
         free(buf_total_str_unicode);
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         file.close();
@@ -184,7 +188,7 @@ String getPixBinStrFromString(String strUnicode, String fontPath)
     // Serial.println(fontPath);
     if (LittleFS.exists(fontPath))
     {
-        File file = LittleFS.open(fontPath);
+        File file = LittleFS.open(fontPath,"r");
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (int i = 0; i < strUnicode.length(); i = i + 4)
@@ -192,16 +196,20 @@ String getPixBinStrFromString(String strUnicode, String fontPath)
             String _str = "u" + strUnicode.substring(i, i + 4);
 
             // int cnt_page = (total_font_cnt + 6) / 6;'
-            int cnt_page = total_font_cnt / 400 + 1;
+            // int cnt_page = total_font_cnt / 400 + 1;
+            Serial.println(strAllUnicodes.length());
+            Serial.println(_str);
             int uIdx = 0;
-            int p = strUnicodes.indexOf(_str);
+            int p = strAllUnicodes.indexOf(_str);
+            Serial.print("p:"+(String)p);
+            
             uIdx = p / 5;
-            // Serial.println(uIdx);
+            Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
             file.seek(pixbeginidx);
             file.read(buf_seek_pixdata, font_page);
             String su = getStringFromChars(buf_seek_pixdata, font_page);
-            // Serial.println(su);
+            Serial.println(su);
             ret += getPixDataFromHex(su);
         }
         file.close();
@@ -219,7 +227,7 @@ bool chkAnsi(unsigned char c)
 void DrawSingleStr(TFT_eSPI &tftOutput, int x, int y, String strBinData, int c, bool ansiChar)
 {
     // 如果是ansi字符则只显示一半
-    int lw = ansiChar == false ? font_size : font_size / 2;
+    // int lw = ansiChar == false ? font_size : font_size / 2;
     for (int i = 0; i < strBinData.length(); i++)
     {
 
@@ -243,9 +251,16 @@ void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
     // return;
     // Serial.println("Init end.");
     String strUnicode = getUnicodeFromUTF8(str);
+    Serial.println(strUnicode);
     singleStrPixsAmount = font_size * font_size;
     String strBinData = getPixBinStrFromString(strUnicode, fontFilePath);
     // Serial.println(strBinData);
+    for(int d=0;d<strBinData.length();d++){
+        if(strBinData.charAt(d)== '0')Serial.print(" ");
+        if(strBinData.charAt(d)== '1')Serial.print("1");
+        if(d%font_size==0)Serial.println("");
+        if(d%(singleStrPixsAmount-1)==0)Serial.println("");
+    }
     int px = 0;
     int py = 0;
     // for (int i = 0; i < strBinData.length() / singleStrPixsAmount; i++)
