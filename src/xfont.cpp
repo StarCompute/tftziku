@@ -1,6 +1,12 @@
 #include <Arduino.h>
-#include <LittleFS.h>
+#include <xfont.h>
+
+#ifdef ARDUINO_GFX
+#include "Arduino_GFX_Library.h"
+#elif defined(TFT_ESPI)
 #include <TFT_eSPI.h>
+#endif
+#include <LittleFS.h>
 
 // 所有字符的unicode编码
 String strAllUnicodes = "";
@@ -19,9 +25,15 @@ int pY = 0;
 int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
 // 下面的屏幕宽和高可以自行设定，在本处由于使用了tft屏幕驱动中的参数
 // int screenWidth = TFT_WIDTH;
-int screenHeight =TFT_WIDTH ;
 
+#ifdef ARDUINO_GFX
+int screenHeight = 128;
+int screenWidth = 160;
+#elif defined(TFT_ESPI)
+int screenHeight = TFT_WIDTH;
 int screenWidth = TFT_HEIGHT;
+#endif
+
 // int screenHeight=128;
 int singleStrPixsAmount = 0;
 
@@ -39,10 +51,9 @@ String getStringFromChars(uint8_t *bs, int l)
         ret += (char)bs[i];
         // Serial.println(ret.length());
     }
-    
+
     return ret;
 }
-
 
 // 把utf8编码字符转unicode编码
 String getUnicodeFromUTF8(String s)
@@ -98,21 +109,22 @@ int getFontPage(int font_size, int bin_type)
     return hexAmount * 2;
 }
 
-
 // 从字符的像素16进制字符重新转成二进制字符串
 String getPixDataFromHex(String s)
 {
     String ret = "";
     // Serial.println(s);
     int l = s.length();
-    String s32="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
+    String s32 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
     // 注意，这里是两个字符进行的处理
-    int cc=3;
-    if (bin_type==32)cc=4;
-    if (bin_type==64)cc=5;
-    for (int i = 0; i < l; i ++)
+    int cc = 3;
+    if (bin_type == 32)
+        cc = 4;
+    if (bin_type == 64)
+        cc = 5;
+    for (int i = 0; i < l; i++)
     {
-        String ch = (String)s[i] ;
+        String ch = (String)s[i];
         int d = s32.indexOf(ch);
         // Serial.println(d);
         // 下面用了bitread来获取数字对应的二进制，bitread(value,k)是读取数字value中的二进制的第k位的值。
@@ -128,7 +140,7 @@ String getPixDataFromHex(String s)
 
     // Serial.println(ret);
     // Serial.println(retNoReturn);
-    return ret.substring(0,font_size*font_size);
+    return ret.substring(0, font_size * font_size);
 }
 
 void initZhiku(String fontPath)
@@ -138,7 +150,7 @@ void initZhiku(String fontPath)
     LittleFS.begin();
     if (LittleFS.exists(fontPath))
     {
-        File file = LittleFS.open(fontPath,"r");
+        File file = LittleFS.open(fontPath, "r");
 
         static uint8_t buf_total_str[6];
         static uint8_t buf_font_size[2];
@@ -166,20 +178,20 @@ void initZhiku(String fontPath)
         // String font_unicode = "";
 
         uint8_t *buf_total_str_unicode2;
-        int laststr=font_unicode_cnt;
+        int laststr = font_unicode_cnt;
         buf_total_str_unicode2 = (uint8_t *)malloc(1024);
         do
         {
             // Serial.println(laststr);
-            int k=1024;
-            if(laststr<1024)k=laststr;
+            int k = 1024;
+            if (laststr < 1024)
+                k = laststr;
             file.read(buf_total_str_unicode2, k);
             strAllUnicodes += getStringFromChars(buf_total_str_unicode2, k);
-            laststr-=1024;
+            laststr -= 1024;
             /* code */
-        } while (laststr>0);
+        } while (laststr > 0);
         free(buf_total_str_unicode2);
-
 
         // uint8_t *buf_total_str_unicode;
         // buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
@@ -189,18 +201,15 @@ void initZhiku(String fontPath)
         Serial.println(strAllUnicodes.length());
         // free(buf_total_str_unicode);
 
-
-
-        
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         file.close();
         isInit = true;
     }
-    else{
+    else
+    {
         Serial.println("找不到字库文件。");
     }
     // LittleFS.end();
-    
 }
 
 // 从字库文件获取字符对应的二进制编码字符串
@@ -211,7 +220,7 @@ String getPixBinStrFromString(String strUnicode, String fontPath)
     // Serial.println(fontPath);
     if (LittleFS.exists(fontPath))
     {
-        File file = LittleFS.open(fontPath,"r");
+        File file = LittleFS.open(fontPath, "r");
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
@@ -225,7 +234,7 @@ String getPixBinStrFromString(String strUnicode, String fontPath)
             int uIdx = 0;
             int p = strAllUnicodes.indexOf(_str);
             // Serial.print("p:"+(String)p);
-            
+
             uIdx = p / 5;
             // Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
@@ -248,7 +257,7 @@ String getCodeDataFromFile(String strUnicode, String fontPath)
     // Serial.println(fontPath);
     if (LittleFS.exists(fontPath))
     {
-        File file = LittleFS.open(fontPath,"r");
+        File file = LittleFS.open(fontPath, "r");
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
@@ -262,7 +271,7 @@ String getCodeDataFromFile(String strUnicode, String fontPath)
             int uIdx = 0;
             int p = strAllUnicodes.indexOf(_str);
             // Serial.print("p:"+(String)p);
-            
+
             uIdx = p / 5;
             // Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
@@ -285,7 +294,13 @@ bool chkAnsi(unsigned char c)
         return true;
     return false;
 }
+
+#ifdef ARDUINO_GFX
+void DrawSingleStr(Arduino_GFX *tftOutput, int x, int y, String strBinData, int c, bool ansiChar)
+#elif defined(TFT_ESPI)
 void DrawSingleStr(TFT_eSPI &tftOutput, int x, int y, String strBinData, int c, bool ansiChar)
+#endif
+
 {
     // 如果是ansi字符则只显示一半
     // int lw = ansiChar == false ? font_size : font_size / 2;
@@ -296,16 +311,26 @@ void DrawSingleStr(TFT_eSPI &tftOutput, int x, int y, String strBinData, int c, 
         {
             int pX1 = int(i % font_size);
             int pY1 = int(i / font_size);
+#ifdef ARDUINO_GFX
+            tftOutput->drawPixel(pX1 + x, pY1 + y, c);
+#elif defined(TFT_ESPI)
             tftOutput.drawPixel(pX1 + x, pY1 + y, c);
+#endif
         }
     }
 }
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
 // 位置计算和字符显示分开
+#ifdef ARDUINO_GFX
+void DrawStr2(Arduino_GFX *tftOutput, int x, int y, String str, int c)
+#elif defined(TFT_ESPI)
 void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
+#endif
+
 {
     initZhiku(fontFilePath);
-    if(isInit==false){
+    if (isInit == false)
+    {
         Serial.println("字库初始化失败");
         return;
     }
@@ -337,7 +362,7 @@ void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
     {
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
-        String childPixData=getPixBinStrFromString(childUnicode, fontFilePath);
+        String childPixData = getPixBinStrFromString(childUnicode, fontFilePath);
         // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
@@ -348,27 +373,32 @@ void DrawStr2(TFT_eSPI &tftOutput, int x, int y, String str, int c)
             {
                 // Serial.println(px + font_size / 2);
                 px = 0;
-                py += font_size;
+                py += font_size + 1;
             }
             // DrawSingleStr(tftOutput, px, py, strBinData.substring(singleStrPixsAmount * l, (singleStrPixsAmount) + singleStrPixsAmount * l), c, true);
             DrawSingleStr(tftOutput, px, py, childPixData, c, true);
-            
-            px += font_size / 2;
+
+            px += font_size / 2 + 1;
         }
         else
         {
             if ((px + font_size) > screenWidth)
             {
                 px = 0;
-                py += font_size;
+                py += font_size + 1;
             }
             // DrawSingleStr(tftOutput, px, py, strBinData.substring(singleStrPixsAmount * l, (singleStrPixsAmount) + singleStrPixsAmount * l), c, true);
             DrawSingleStr(tftOutput, px, py, childPixData, c, true);
-            px += font_size;
+            px += font_size + 1;
         }
     }
 }
+
+#ifdef ARDUINO_GFX
+void DrawStr(Arduino_GFX *tftOutput, int x, int y, String str, int color)
+#elif defined(TFT_ESPI)
 void DrawStr(TFT_eSPI &tftOutput, int x, int y, String str, int color)
+#endif
 {
     initZhiku(fontFilePath);
     singleStrPixsAmount = font_size * font_size;
@@ -389,7 +419,11 @@ void DrawStr(TFT_eSPI &tftOutput, int x, int y, String str, int color)
             // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
             pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / font_size) + int(i / l1) * font_size;
 
+#ifdef ARDUINO_GFX
+            tftOutput->drawPixel(pX + x, pY + y, color);
+#elif defined(TFT_ESPI)
             tftOutput.drawPixel(pX + x, pY + y, color);
+#endif
         }
         // else
         // {
