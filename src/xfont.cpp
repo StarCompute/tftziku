@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <LittleFS.h>
 #include <xfont.h>
 
 #ifdef ARDUINO_GFX
@@ -6,7 +7,7 @@
 #elif defined(TFT_ESPI)
 #include <TFT_eSPI.h>
 #endif
-#include <LittleFS.h>
+
 
 // 所有字符的unicode编码
 String strAllUnicodes = "";
@@ -142,7 +143,7 @@ String getPixDataFromHex(String s)
     // Serial.println(retNoReturn);
     return ret.substring(0, font_size * font_size);
 }
-
+ 
 void initZhiku(String fontPath)
 {
     if (isInit == true)
