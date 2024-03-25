@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <LittleFS.h>
 #include <xfont.h>
 
 #ifdef ARDUINO_GFX
@@ -7,7 +6,7 @@
 #elif defined(TFT_ESPI)
 #include <TFT_eSPI.h>
 #endif
-
+#include <LittleFS.h>
 
 // 所有字符的unicode编码
 String strAllUnicodes = "";
@@ -143,7 +142,7 @@ String getPixDataFromHex(String s)
     // Serial.println(retNoReturn);
     return ret.substring(0, font_size * font_size);
 }
- 
+
 void initZhiku(String fontPath)
 {
     if (isInit == true)
@@ -178,12 +177,24 @@ void initZhiku(String fontPath)
         font_unicode_cnt = total_font_cnt * 5;
         // String font_unicode = "";
 
+
+
+// 如果是esp32系统，因为ram比较大，一次性读取出所有字符
+#if defined (ESP32)
+        uint8_t *buf_total_str_unicode;
+        buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
+        Serial.println(font_unicode_cnt);
+        file.read(buf_total_str_unicode, font_unicode_cnt);
+        strAllUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
+        free(buf_total_str_unicode);
+// 如果是esp8266或者其他系统则每次读取1k的内存一直到读完
+// #elif defined (ARDUINO_ARCH_ESP8266)
+#else
         uint8_t *buf_total_str_unicode2;
         int laststr = font_unicode_cnt;
         buf_total_str_unicode2 = (uint8_t *)malloc(1024);
         do
         {
-            // Serial.println(laststr);
             int k = 1024;
             if (laststr < 1024)
                 k = laststr;
@@ -194,13 +205,12 @@ void initZhiku(String fontPath)
         } while (laststr > 0);
         free(buf_total_str_unicode2);
 
-        // uint8_t *buf_total_str_unicode;
-        // buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
-        // Serial.println(font_unicode_cnt);
-        // file.read(buf_total_str_unicode, font_unicode_cnt);
-        // strAllUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
+#endif
+
+
+
         Serial.println(strAllUnicodes.length());
-        // free(buf_total_str_unicode);
+        
 
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         file.close();
