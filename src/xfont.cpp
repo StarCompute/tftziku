@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include <xfont.h>
+#include <LittleFS.h>
 
 #ifdef ARDUINO_GFX
 #include "Arduino_GFX_Library.h"
 #elif defined(TFT_ESPI)
 #include <TFT_eSPI.h>
 #endif
-#include <LittleFS.h>
+
 
 // 所有字符的unicode编码
 String strAllUnicodes = "";

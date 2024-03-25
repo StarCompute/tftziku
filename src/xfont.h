@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <LittleFS.h>
 
 // #define ARDUINO_GFX
 #define TFT_ESPI
@@ -9,7 +10,7 @@
 #include <TFT_eSPI.h>
 #endif
 
-#include <LittleFS.h>
+
 
 // 转化字符数组为字符串
 String getStringFromChars(uint8_t * bs,int l);
