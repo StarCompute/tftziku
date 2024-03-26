@@ -7,6 +7,12 @@
 
 注意：
 
+2024.03.26 做了一些对比测试 ：在esp8266下，tft_espi的RAM占用要优于arduino_gfx,但是磁盘占用要稍微多一点，在esp32下两者相差不大；其二，这些显示驱动中不相干的驱动对于ram和flash空间基本没有任何影响，相差只有0.1%；
+
+详情可以访问 ：  https://blog.csdn.net/platform/article/details/137037441
+ 
+2024.03.21 同时支持了两个屏幕驱动库tft_eSPI和arduino_gfx 。
+
 2024.03.21 同时支持了两个屏幕驱动库tft_eSPI和arduino_gfx 。
 
 2024.01.15 目前字库的生成和单片机调用都支持了32进制编码；未来是否支持64进制编码待定。
@@ -29,7 +35,6 @@
 | src/getunicodeV2.py       | 使用Python 创建字库 (目前在用版本) |
 | src/getunicodeV3.py       | 对创建字库换成了32进制版本，压缩18%的体积，(目前在用版本)|
 | src/main.c              | 在esp32中调用字库并显示到tft屏幕  |
-| fileo.h fileo.c         | 暂时保留在项目说供以后使用  |
 | lib/        | 宋体不同编码和字号的字库  | 
 
 
