@@ -110,7 +110,7 @@ def getPixsDataFromImg(img,pos,fontSize,maxfontchars,binType=32):
     # linechars = ""
     # hexChar = ""
     # 从左到右，从上到下，交叉获取像素
-    for i in range(pos, pos+fontSize):
+    for i in range(pos+1, pos+fontSize+1):
         # for d in range(9,9+len(displatstr)*head_fontsize):
         for d in range(pos, pos+fontSize):
             dotpix = img.getpixel((d, i))
@@ -199,6 +199,7 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
 
 
     ypos=10
+    if(fontSize==16):ypos=9
     # im = Image.new('RGB', (256, 256), (0, 0, 0))
     # 画图使用了P模式，避免了RGB导致的模糊影响
     im = Image.new(imgModel, (256, 256), (0, 0, 0))
@@ -329,11 +330,11 @@ def getPixDataFromStr(displaystr,fontFile):
 # 注意，为了方便调用把字库存到了lib目录下
 
 
-_font_size=16
+_font_size=12
 _bin_type=64
 createFont( FONT_ALL,"P", "simsun.ttc", _font_size,_bin_type)
 # 下面这行用于在终端输出显示字库是否创建正确
-getPixDataFromStr("清澈的爱,只为中国!","font/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
+getPixDataFromStr("业精于勤荒于嬉戏，行成于思毁于随","font/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
 
 
 
@@ -342,6 +343,6 @@ import os
 os.system("cd ..")
 os.system("move  font\\x_f"+str(_font_size)+"_b"+str(_bin_type)+".font data\\x.font")
 # 请注意检查下面pio.exe 的配置地址和--environment 后esp32dev 应该为你的配置，这个配置就是你platform.ini中的[env:xxx]中这个xxx
-os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment nodemcuv2")
+# os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment nodemcuv2")
 
 
