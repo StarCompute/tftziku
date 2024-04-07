@@ -1,13 +1,17 @@
 #include <Arduino.h>
 #include <LittleFS.h>
+
+// 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
 #define ARDUINO_GFX
 // #define TFT_ESPI
 
+
 #ifdef ARDUINO_GFX
-#include "Arduino_GFX_Library.h"
+    #include "Arduino_GFX_Library.h"
 #elif defined(TFT_ESPI) 
-#include <TFT_eSPI.h>
+    #include <TFT_eSPI.h>
 #endif
+
 using std::wstring;
 
 class XFont
@@ -25,9 +29,6 @@ public:
 #elif defined(TFT_ESPI)
     TFT_eSPI tft = TFT_eSPI();
 #endif    
-
-   
-   
 
     void DrawStr2(int x, int y, String str, int c);
 
@@ -74,17 +75,17 @@ protected:
 
     int pX = 16;
     int pY = 0;
-    // int fontsize = 12;      // 字号
-    int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
-    // 下面的屏幕宽和高可以自行设定，在本处由于使用了tft屏幕驱动中的参数
-    // int screenWidth = TFT_WIDTH;
 
+    // 注意现在的显示字数是自动根据屏幕大下和字体大小计算的，以下暂时未生效，但是保留
+    int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
+
+// 注意：如果屏幕设置了不同的旋转方式，以下代码应该对应调整
     #ifdef ARDUINO_GFX
-    int screenHeight = 128;
-    int screenWidth = 160;
+        int screenHeight = 128;
+        int screenWidth = 160;
     #elif defined(TFT_ESPI)
-    int screenHeight = TFT_WIDTH;
-    int screenWidth = TFT_HEIGHT;
+        int screenHeight = TFT_WIDTH;
+        int screenWidth = TFT_HEIGHT;
     #endif
 
     // int screenHeight=128;
