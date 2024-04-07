@@ -84,4 +84,5 @@ esp32上调用
 // #define TFT_ESPI
 
 2，不同屏幕驱动定义的颜色变量不一致，所以需要进行对应的修改；
+
 3，xfont的初始化中被我个人习惯设置成了旋转，例如：tft->setRotation(1); 需要注意调整对应的screenHeight和screenWidth。
