@@ -20,7 +20,6 @@
 .. code-block:: 
 
     board_build.filesystem = littlefs
-    lib_deps = lorol/LittleFS_esp32@^1.0.6 
 
 
 修改上面的参数后需要重新上传字库，并且编译代码上传。
