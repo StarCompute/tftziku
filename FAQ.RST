@@ -56,6 +56,7 @@
 修改创建文件中的 ``simsun.ttc `` 为其他字体的名字，如果你使用windows，请到对应的fonts目录进行查找字库名称；
 
 .. code-block::  
+    
     _font_name="simsun.ttc"
 
 
@@ -65,6 +66,7 @@
 修改下面代码中对应的数字即可。
 
 .. code-block::  
+
     _font_size=12
 
 
