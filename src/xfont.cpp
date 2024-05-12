@@ -152,7 +152,11 @@ void XFont::initZhiku(String fontPath)
 {
     if (isInit == true)
         return;
-    LittleFS.begin();
+    if(LittleFS.begin()==false){
+        Serial.println("littleFS 文件系统初始化失败,请检查相关配置。");
+        return;
+
+    }
     if (LittleFS.exists(fontPath))
     {
         File file = LittleFS.open(fontPath, "r");
