@@ -224,7 +224,7 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
     # print(font_content)
 
     print("\r\n创建字体结束，开始写文件。")
-    fontSavePath="font/x_f"+str(fontSize)+"_b"+str(binType)+".font"
+    fontSavePath=_font_lib_name
     # fontSavePath="d:/x_f"+str(fontSize)+"_b"+str(binType)+".font"
     f=open(fontSavePath,"w")
     f.write(font_content)
@@ -337,18 +337,21 @@ _bin_type=64
 # 如果打算使用其他字体请修改下面的simsun.ttc,例如微软雅黑是msyh.ttc ，具体请查看windows内fonts目录内的字体。
 _font_name="simsun.ttc"
 
+_font_lib_name="font\\x_"+_font_name+"_"+str(_font_size)+"_b"+str(_bin_type)+".font"
 
 createFont( FONT_ALL,"P", _font_name, _font_size,_bin_type)
 
 # 下面这行用于在终端输出显示字库是否创建正确
-getPixDataFromStr("业精于勤荒于嬉戏，行成于思毁于随","font/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
+
+
+getPixDataFromStr("业精于勤荒于嬉戏，行成于思毁于随",_font_lib_name)
 
 
 
 # # 注意下面的代码是在platformio环境中使用，在字库创建完毕后进行自动上传字库到esp32中
-import os
-os.system("cd ..")
-os.system("move  font\\x_f"+str(_font_size)+"_b"+str(_bin_type)+".font data\\x.font")
+# import os
+# os.system("cd ..")
+# os.system("move  "+_font_lib_name+" data\\x.font")
 # 请注意检查下面pio.exe 的配置地址和--environment 后esp32dev 应该为你的配置，这个配置就是你platform.ini中的[env:xxx]中这个xxx
 # os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment nodemcuv2")
 

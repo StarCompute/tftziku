@@ -17,7 +17,7 @@
 
 .. code-block::  python
 
-    getPixDataFromStr("业精于勤荒于嬉戏，行成于思毁于随","font/x_f"+str(_font_size)+"_b"+str(_bin_type)+".font")
+    getPixDataFromStr("业精于勤荒于嬉戏，行成于思毁于随",_font_lib_name)
 
 
 如何调整字库内容
@@ -40,11 +40,11 @@
 
 .. code-block::  python
 
-    import os
-    os.system("cd ..")
-    os.system("move  font\\x_f"+str(_font_size)+"_b"+str(_bin_type)+".font data\\x.font")
+    # import os
+    # os.system("cd ..")
+    # os.system("move  "+_font_lib_name+" data\\x.font")
     # 请注意检查下面pio.exe 的配置地址和--environment 后esp32dev 应该为你的配置，这个配置就是你platform.ini中的[env:xxx]中这个xxx
-    os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment nodemcuv2")
+    # os.system("C:\\Users\\xuank\\.platformio\\penv\\Scripts\\pio.exe  run --target uploadfs --environment nodemcuv2")
 
 
 注意：1，调整上面这段代码中pio.exe 的文件位置；2，调整nodemcuv2 为你的配置
@@ -68,6 +68,30 @@
 .. code-block::  
 
     _font_size=12
+
+
+直接使用已经生成的字库
+************************************************************************
+
+以下字体分别创建了字库放在了font目录中
+
+simsun.ttc      宋体
+simfang.ttf     仿宋
+simkai.ttf      楷体
+simhei.ttf      黑体
+msyh.ttc        微软雅黑
+
+并且已经创建了12，14，16和18号字体，都可以拷贝到data目录下命名为x.font ，上传到单片机直接调用
+
+.. 注意:: 字号的选择。
+
+    由于不同字体本身的特征，有些字体不适合选择16号以下的字号，虽然说有生成。
+
+
+字体的漂移
+************************************************************************
+
+由于不同的字体本身的特征，字库在创建的时候会存在部分漂移的情况，显示不完整，这种请留言联系
 
 
 明明上传字库成功，为啥还提示我找不到字库 
@@ -116,7 +140,7 @@
 什么样的提问我会不予理睬
 ************************************************************************
 
-感谢大家使用这个开源项目，但是我不是万能的，不可能知道你在做什么和如何做
+非常感谢大家使用这个开源项目，希望可以为你带来帮助；但是我不是万能的，不可能知道你在做什么和如何做
 有人留言如下 ：
 
 .. code-block:: 
