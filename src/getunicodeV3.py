@@ -329,11 +329,12 @@ def getPixDataFromStr(displaystr,fontFile):
     
 # 注意，为了方便调用把字库存到了lib目录下
 
+# 下面代码设置编码格式，不应做任何调整
+_bin_type=64
 
 # 下面代码模式设置字号，可以按照偶数进行调整，但是都必须大于12，12以下的显示不全
 _font_size=12
-# 下面代码设置编码格式，不应做任何调整
-_bin_type=64
+
 # 如果打算使用其他字体请修改下面的simsun.ttc,例如微软雅黑是msyh.ttc ，具体请查看windows内fonts目录内的字体。
 _font_name="simsun.ttc"
 
