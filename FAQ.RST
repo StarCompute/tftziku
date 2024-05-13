@@ -168,6 +168,30 @@ python 文件 getunicodeV3.py 使用了PIL库，请安装 Pillow 库，兼容
 
 
 
+不同屏幕驱动的配置调整
+************************************************************************
+
+在 xfont.c下面的代码中
+
+.. code-block:: c
+
+
+
+    #ifdef ARDUINO_GFX
+
+        Arduino_DataBus *bus = create_default_Arduino_DataBus();
+        Arduino_GFX *tft = new Arduino_ST7735(bus);
+        #define GFX_BL DF_GFX_BL
+
+    #elif defined(TFT_ESPI)
+        TFT_eSPI tft = TFT_eSPI();
+    #endif    
+
+
+调整不同的配置支持不同的TFT驱动芯片，Arduino_GFX 需要修改上面的 Arduino_ST7735， 在TFT_eSPI中需要调整那个user_select.ini文件。
+有兴趣的朋友也可以参考 https://github.com/StarCompute/tftziku/issues/3 中这位朋友的方式。
+
+
 显示为什么是倾倒的
 ************************************************************************
 
