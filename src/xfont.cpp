@@ -236,7 +236,7 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
     if  (file)
     {
         // File file = LittleFS.open(fontPath, "r");
-        file.seek(0);
+        // file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
@@ -274,7 +274,7 @@ String XFont::getCodeDataFromFile(String strUnicode, String fontPath)
     if (file)
     {
         // File file = LittleFS.open(fontPath, "r");
-        file.seek(0);
+        // file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
