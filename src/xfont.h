@@ -27,6 +27,7 @@ public:
 
     Arduino_DataBus *bus = create_default_Arduino_DataBus();
     Arduino_GFX *tft = new Arduino_ST7735(bus);
+    File file ;
     #define GFX_BL DF_GFX_BL
 
 #elif defined(TFT_ESPI)

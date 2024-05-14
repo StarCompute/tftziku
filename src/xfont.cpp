@@ -159,7 +159,7 @@ void XFont::initZhiku(String fontPath)
     }
     if (LittleFS.exists(fontPath))
     {
-        File file = LittleFS.open(fontPath, "r");
+        file = LittleFS.open(fontPath, "r");
 
         static uint8_t buf_total_str[6];
         static uint8_t buf_font_size[2];
@@ -217,7 +217,7 @@ void XFont::initZhiku(String fontPath)
         Serial.println(strAllUnicodes.length());
 
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
-        file.close();
+        // file.close();
         isInit = true;
     }
     else
@@ -233,9 +233,10 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
 
     String ret = "";
     // Serial.println(fontPath);
-    if (LittleFS.exists(fontPath))
+    if  (file)
     {
-        File file = LittleFS.open(fontPath, "r");
+        // File file = LittleFS.open(fontPath, "r");
+        file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
@@ -259,7 +260,7 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
             // Serial.println(su);
             ret += getPixDataFromHex(su);
         }
-        file.close();
+        // file.close();
     }
     return ret;
 }
@@ -270,9 +271,10 @@ String XFont::getCodeDataFromFile(String strUnicode, String fontPath)
 
     String ret = "";
     // Serial.println(fontPath);
-    if (LittleFS.exists(fontPath))
+    if (file)
     {
-        File file = LittleFS.open(fontPath, "r");
+        // File file = LittleFS.open(fontPath, "r");
+        file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
@@ -296,7 +298,7 @@ String XFont::getCodeDataFromFile(String strUnicode, String fontPath)
             // Serial.println(su);
             ret += su;
         }
-        file.close();
+        // file.close();
     }
     Serial.println(ret);
     return ret;
