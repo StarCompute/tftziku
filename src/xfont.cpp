@@ -222,7 +222,7 @@ void XFont::initZhiku(String fontPath)
     }
     else
     {
-        Serial.println("找不到字库文件。");
+        Serial.println("LitteFS系统工作正常，但是找不到字库文件。");
     }
     // LittleFS.end();
 }
