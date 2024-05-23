@@ -325,7 +325,7 @@ def getPixDataFromStr(displaystr,fontFile):
 
 
 # 如果打算自定义字库，反注释下面一行，调整为你要显示的汉字
-# FONT_ALL = "清澈的爱只为中国1"
+# FONT_ALL = "业精于勤荒嬉戏，行成思毁随。"
     
 # 注意，为了方便调用把字库存到了lib目录下
 
