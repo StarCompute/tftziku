@@ -352,16 +352,14 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
 void XFont::DrawStr2(int x, int y, String str, int c)
 
 {
-    unsigned long beginTime = millis();
+
     initZhiku(fontFilePath);
     if (isInit == false)
     {
         Serial.println("字库初始化失败");
         return;
     }
-    unsigned long endTime = millis();
-    Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(endTime - beginTime)/1000.0);
-    beginTime = millis();
+    unsigned long beginTime = millis();
     // return;
     // Serial.println("Init end.");
     String strUnicode = getUnicodeFromUTF8(str);
