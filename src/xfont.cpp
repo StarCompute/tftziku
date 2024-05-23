@@ -14,6 +14,7 @@ XFont::XFont()
 
 void XFont::InitTFT()
 {
+    unsigned long beginTime = millis();
 #ifdef ARDUINO_GFX
     if (!tft->begin())
     {
@@ -35,11 +36,15 @@ void XFont::InitTFT()
     tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
-    tft.drawText(10, 10, "pls waiting!");
+    tft.drawString("pls waiting!",10, 10);
 
 #endif
     //初始化字库，获得字库中的所有字符集
+
+    Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+    beginTime = millis();
     initZhiku(fontFilePath);
+    Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
 }
 
 // 转化字符数组为字符串
@@ -181,7 +186,7 @@ void XFont::initZhiku(String fontPath)
         // Serial.println(s1);
         // Serial.println(s2);
         // Serial.println(s3);
-        Serial.println(font_page);
+        // Serial.println(font_page);
         // 待读取的总编码长度,每个字都对应着一个uxxxx，所以乘5
         font_unicode_cnt = total_font_cnt * 5;
         // String font_unicode = "";
@@ -197,24 +202,26 @@ void XFont::initZhiku(String fontPath)
 // 如果是esp8266或者其他系统则每次读取1k的内存一直到读完
 // #elif defined (ARDUINO_ARCH_ESP8266)
 #else
+        strAllUnicodes="";
         uint8_t *buf_total_str_unicode2;
         int laststr = font_unicode_cnt;
-        buf_total_str_unicode2 = (uint8_t *)malloc(2048);
+        int read_size=512*2;
+        buf_total_str_unicode2 = (uint8_t *)malloc(read_size);
+        // file.seek(10);
         do
         {
-            int k = 2048;
-            if (laststr < 2048)
+            size_t k = read_size;
+            if (laststr < read_size)
                 k = laststr;
             file.read(buf_total_str_unicode2, k);
             strAllUnicodes += getStringFromChars(buf_total_str_unicode2, k);
-            laststr -= 2048;
+            laststr -= read_size;
             /* code */
         } while (laststr > 0);
         free(buf_total_str_unicode2);
-
 #endif
 
-        Serial.println(strAllUnicodes.length());
+        Serial.printf("     字符总数:%d \r\n",strAllUnicodes.length());
 
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         // file.close();
@@ -345,15 +352,21 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
 void XFont::DrawStr2(int x, int y, String str, int c)
 
 {
+    unsigned long beginTime = millis();
     initZhiku(fontFilePath);
     if (isInit == false)
     {
         Serial.println("字库初始化失败");
         return;
     }
+    unsigned long endTime = millis();
+    Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(endTime - beginTime)/1000.0);
+    beginTime = millis();
     // return;
     // Serial.println("Init end.");
     String strUnicode = getUnicodeFromUTF8(str);
+    Serial.printf("     预处理要显示的汉字耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+    beginTime = millis();
     // String codeData=getCodeDataFromFile(strUnicode,fontFilePath);
     // Serial.println(strUnicode);
     singleStrPixsAmount = font_size * font_size;
@@ -375,7 +388,7 @@ void XFont::DrawStr2(int x, int y, String str, int c)
     // }
     px = x;
     py = y;
-    unsigned long beginTime = millis();
+   
 
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
     {
@@ -386,7 +399,7 @@ void XFont::DrawStr2(int x, int y, String str, int c)
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
 
-        if (f <= 127)
+        if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且
         {
             if ((px + font_size / 2) > screenWidth)
             {
@@ -409,8 +422,7 @@ void XFont::DrawStr2(int x, int y, String str, int c)
             px += font_size + 1;
         }
     }
-    unsigned long endTime = millis();
-    Serial.println(endTime - beginTime);
+    Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
 
 void XFont::DrawChinese(int x, int y, String str, int c)

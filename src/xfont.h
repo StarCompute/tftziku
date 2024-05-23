@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 
-#define SPIFFS LITTLEFS
-
 // 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
 #define ARDUINO_GFX
 // #define TFT_ESPI
@@ -23,11 +21,12 @@ class XFont
 public:
      XFont() ;
 
+    File file ;
 #ifdef ARDUINO_GFX
 
     Arduino_DataBus *bus = create_default_Arduino_DataBus();
     Arduino_GFX *tft = new Arduino_ST7735(bus);
-    File file ;
+    
     #define GFX_BL DF_GFX_BL
 
 #elif defined(TFT_ESPI)
