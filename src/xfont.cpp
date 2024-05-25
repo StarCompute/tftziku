@@ -56,13 +56,14 @@ String XFont::getStringFromChars(uint8_t *bs, int l)
     // int l=sizeof(bs) ;
     // Serial.println(l);
     // ret.reserve(l);
-    for (int i = 0; i < l; i++)
-    {
-        ret += (char)bs[i];
-        // Serial.println(ret.length());
-    }
-
-    return ret;
+    // for (int i = 0; i < l; i++)
+    // {
+    //     ret += (char)bs[i];
+    //     // Serial.println(ret.length());
+    // }
+    char* input2 = (char *) bs;
+    ret = input2;
+    return ret.substring(0,l);
 }
 
 // 把utf8编码字符转unicode编码
@@ -122,35 +123,46 @@ int XFont::getFontPage(int font_size, int bin_type)
 // 从字符的像素16进制字符重新转成二进制字符串
 String XFont::getPixDataFromHex(String s)
 {
-    String ret = "";
+    String  ret = "";
     // Serial.println(s);
     int l = s.length();
-    String s32 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
+    char ch[font_size * font_size];
+    int cnt=0;
+    // String s32 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
     // 注意，这里是两个字符进行的处理
     int cc = 3;
-    if (bin_type == 32)
-        cc = 4;
+    // if (bin_type == 32)
+    //     cc = 4;
     if (bin_type == 64)
         cc = 5;
     for (int i = 0; i < l; i++)
     {
-        String ch = (String)s[i];
-        int d = s32.indexOf(ch);
+        // String ch = (String)s[i];
+        // int d = s32.indexOf(ch);
+
+        int d=strchr( s64,s[i])-s64;
         // Serial.println(d);
         // 下面用了bitread来获取数字对应的二进制，bitread(value,k)是读取数字value中的二进制的第k位的值。
         // 使用bitread就没有使用getBin这种方式了，但是保留了两种getbin函数
 
         for (int k = cc; k >= 0; k--)
         {
-            // Serial.print(sa[k]);
-            ret += bitRead(d, k);
+            ch[cnt]=48+(int)bitRead(d, k);
+            // Serial.print(ddd);
+            cnt++;
+            // ret.concat();
+            // strcat(ret,s);
+            // strncat(ch,s.c_str(),1);
+            // ret += bitRead(d, k);
             // retNoReturn=retNoReturn+(String)sa[k];
         }
     }
 
-    // Serial.println(ret);
+    // Serial.println((String)ch);
     // Serial.println(retNoReturn);
+    ret=(String)ch;
     return ret.substring(0, font_size * font_size);
+    // return "";
 }
 
 void XFont::initZhiku(String fontPath)
@@ -246,6 +258,7 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
         // file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
+        const char* chrAllUnicodes=strAllUnicodes.c_str();
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
         {
             String _str = "u" + strUnicode.substring(i, i + 4);
@@ -255,7 +268,11 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
             // Serial.println(strAllUnicodes.length());
             // Serial.println(_str);
             int uIdx = 0;
-            int p = strAllUnicodes.indexOf(_str);
+            // int p = strAllUnicodes.indexOf(_str);
+            char * ddd=strstr(chrAllUnicodes,_str.c_str());
+            int p =ddd-strAllUnicodes.c_str();
+            // Serial.printf("P: %d ,ddd : %d \r\n",p,ddd-strAllUnicodes.c_str());
+            // strAllUnicodes.indexOf
             // Serial.print("p:"+(String)p);
 
             uIdx = p / 5;
@@ -322,6 +339,7 @@ bool XFont::chkAnsi(unsigned char c)
 void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
 
 {
+       unsigned long beginTime = millis();
 // 如果是ansi字符则只显示一半
 // int lw = ansiChar == false ? font_size : font_size / 2;
 #ifdef ARDUINO_GFX
@@ -346,6 +364,8 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
 #ifdef ARDUINO_GFX
 // tftOutput->endWrite();
 #endif
+// Serial.printf("     字符像素显示耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+time_spent+=millis()  - beginTime;
 }
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
 // 位置计算和字符显示分开
@@ -393,11 +413,12 @@ void XFont::DrawStr2(int x, int y, String str, int c)
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
         String childPixData = getPixBinStrFromString(childUnicode, fontFilePath);
-        // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
+        // return;
+        // // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
 
-        if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且
+        if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
         {
             if ((px + font_size / 2) > screenWidth)
             {
@@ -420,13 +441,14 @@ void XFont::DrawStr2(int x, int y, String str, int c)
             px += font_size + 1;
         }
     }
+    
     Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
 
 void XFont::DrawChinese(int x, int y, String str, int c)
 {
     DrawStr2(x,y,str,c);
-
+    Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
 }
 
 void XFont::DrawStr(int x, int y, String str, int color)

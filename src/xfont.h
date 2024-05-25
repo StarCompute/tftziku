@@ -2,8 +2,8 @@
 #include <LittleFS.h>
 
 // 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
-#define ARDUINO_GFX
-// #define TFT_ESPI
+// #define ARDUINO_GFX
+#define TFT_ESPI
 
 
 
@@ -74,8 +74,9 @@ protected:
     int font_size = 0;
     int font_page = 0;
     bool isInit = false;
+    unsigned long time_spent=0;
     String fontFilePath = "/x.font";
-
+    const char* s64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
     int pX = 16;
     int pY = 0;
 
