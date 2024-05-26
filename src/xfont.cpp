@@ -20,7 +20,6 @@ void XFont::InitTFT()
     {
         Serial.println("gfx->begin() failed!");
     }
-    tft->fillScreen(BLACK);
 #ifdef GFX_BL
     pinMode(GFX_BL, OUTPUT);
     digitalWrite(GFX_BL, HIGH);

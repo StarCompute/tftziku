@@ -25,6 +25,7 @@ public:
 #ifdef ARDUINO_GFX
 
     Arduino_DataBus *bus = create_default_Arduino_DataBus();
+    // 注意，不同的tft屏幕驱动选择不同的对象
     Arduino_GFX *tft = new Arduino_ST7735(bus);
     
     #define GFX_BL DF_GFX_BL
