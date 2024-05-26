@@ -245,10 +245,13 @@ void XFont::initZhiku(String fontPath)
     // LittleFS.end();
 }
 
+
+
 // 从字库文件获取字符对应的二进制编码字符串
-String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
+String XFont::getPixBinStrFromString(String strUnicode)
 {
 
+    initZhiku(fontFilePath);
     String ret = "";
     // Serial.println(fontPath);
     if  (file)
@@ -268,8 +271,9 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
             // Serial.println(_str);
             int uIdx = 0;
             // int p = strAllUnicodes.indexOf(_str);
-            char * ddd=strstr(chrAllUnicodes,_str.c_str());
-            int p =ddd-strAllUnicodes.c_str();
+            //下面代码用来查找定位，相对于string的indexof方法，性能相差10倍以上。
+            char * chrFind=strstr(chrAllUnicodes,_str.c_str());
+            int p =chrFind-strAllUnicodes.c_str();
             // Serial.printf("P: %d ,ddd : %d \r\n",p,ddd-strAllUnicodes.c_str());
             // strAllUnicodes.indexOf
             // Serial.print("p:"+(String)p);
@@ -289,7 +293,7 @@ String XFont::getPixBinStrFromString(String strUnicode, String fontPath)
 }
 
 // 从字库文件获取字符对应的编码字符串
-String XFont::getCodeDataFromFile(String strUnicode, String fontPath)
+String XFont::getCodeDataFromFile(String strUnicode)
 {
 
     String ret = "";
@@ -366,6 +370,32 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
 // Serial.printf("     字符像素显示耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
 time_spent+=millis()  - beginTime;
 }
+
+
+String XFont::GetPixDatasFromLib(String displayStr){
+
+    initZhiku(fontFilePath);
+    if (isInit == false)
+    {
+        Serial.println("字库初始化失败");
+        return "";
+    }
+    String ret="";
+
+    String strUnicode = getUnicodeFromUTF8(displayStr);
+    for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
+    {
+
+        String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
+        ret += getPixBinStrFromString(childUnicode);
+
+
+    }
+    return ret;
+}
+
+
+
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
 // 位置计算和字符显示分开
 void XFont::DrawStr2(int x, int y, String str, int c)
@@ -411,7 +441,7 @@ void XFont::DrawStr2(int x, int y, String str, int c)
     {
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
-        String childPixData = getPixBinStrFromString(childUnicode, fontFilePath);
+        String childPixData = getPixBinStrFromString(childUnicode);
         // return;
         // // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
         int f = 0;
@@ -456,7 +486,7 @@ void XFont::DrawStr(int x, int y, String str, int color)
     singleStrPixsAmount = font_size * font_size;
     // 下面的代码显示对应的汉字在TFT屏幕上
 
-    String strBinData = getPixBinStrFromString(str, fontFilePath);
+    String strBinData = getPixBinStrFromString(str);
     // Serial.println(strBinData);
     amountDisplay = screenWidth / font_size; // 如果不愿意动态计算显示数量可以注释调这一行
     int l1 = singleStrPixsAmount * amountDisplay;
