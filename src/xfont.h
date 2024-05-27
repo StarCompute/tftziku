@@ -34,8 +34,12 @@ public:
 
     void DrawStr2(int x, int y, String str, int c);
 
+    void DrawStrEx(int x, int y, String str, int c);
     // 在指定位置输出中文
     void DrawChinese(int x, int y, String str, int c);
+
+    // 在指定位置输出中文,本方法是视觉上显示最快
+    void DrawChineseEx(int x, int y, String str, int c);
 
     //直接从字库获得指定字符的像素编码,方便用于像素屏，例如
     //GetPixDatasFromLib("我"),返回：“000110100000011100100100000100100010000100100000111111111110000100100000000100100100000110101000001100010000110100110010000101001010001100000110”

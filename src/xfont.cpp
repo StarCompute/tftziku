@@ -304,6 +304,7 @@ String XFont::getCodeDataFromFile(String strUnicode)
         // file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
+        const char* chrAllUnicodes=strAllUnicodes.c_str();
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
         {
             String _str = "u" + strUnicode.substring(i, i + 4);
@@ -313,7 +314,9 @@ String XFont::getCodeDataFromFile(String strUnicode)
             // Serial.println(strAllUnicodes.length());
             // Serial.println(_str);
             int uIdx = 0;
-            int p = strAllUnicodes.indexOf(_str);
+            char * chrFind=strstr(chrAllUnicodes,_str.c_str());
+            int p =chrFind-strAllUnicodes.c_str();
+            // int p = strAllUnicodes.indexOf(_str);
             // Serial.print("p:"+(String)p);
 
             uIdx = p / 5;
@@ -327,7 +330,7 @@ String XFont::getCodeDataFromFile(String strUnicode)
         }
         // file.close();
     }
-    Serial.println(ret);
+    // Serial.println(ret);
     return ret;
 }
 
@@ -346,7 +349,7 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
 // 如果是ansi字符则只显示一半
 // int lw = ansiChar == false ? font_size : font_size / 2;
 #ifdef ARDUINO_GFX
-// tftOutput->startWrite();
+tft->startWrite();
 #endif
     for (uint16_t i = 0; i < strBinData.length(); i++)
     {
@@ -356,8 +359,8 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
             int pX1 = int(i % font_size);
             int pY1 = int(i / font_size);
 #ifdef ARDUINO_GFX
-            tft->drawPixel(pX1 + x, pY1 + y, c);
-            // tftOutput->writePixelPreclipped(pX1 + x, pY1 + y, c);
+            // tft->drawPixel(pX1 + x, pY1 + y, c);
+            tft->writePixelPreclipped(pX1 + x, pY1 + y, c);
 #elif defined(TFT_ESPI)
             tft.drawPixel(pX1 + x, pY1 + y, c);
 #endif
@@ -365,7 +368,7 @@ void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
     }
 
 #ifdef ARDUINO_GFX
-// tftOutput->endWrite();
+tft->endWrite();
 #endif
 // Serial.printf("     字符像素显示耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
 time_spent+=millis()  - beginTime;
@@ -478,6 +481,72 @@ void XFont::DrawChinese(int x, int y, String str, int c)
 {
     DrawStr2(x,y,str,c);
     Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
+}
+
+void XFont::DrawChineseEx(int x, int y, String str, int c)
+{
+    DrawStrEx(x,y,str,c);
+    Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
+}
+// DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
+// 位置计算和字符显示分开
+void XFont::DrawStrEx(int x, int y, String str, int c)
+
+{
+
+    initZhiku(fontFilePath);
+    if (isInit == false)
+    {
+        Serial.println("字库初始化失败");
+        return;
+    }
+    unsigned long beginTime = millis();
+    String strUnicode = getUnicodeFromUTF8(str);
+    Serial.printf("     预处理要显示的汉字耗时:%.3f 秒.\r\n",(millis() - beginTime)/1000.0);
+    beginTime = millis();
+    String codeData=getCodeDataFromFile(strUnicode);
+    // Serial.println(codeData);
+    singleStrPixsAmount = font_size * font_size;
+
+    int px = x;
+    int py = y;
+
+//    int s=codeData.length()/str.length();
+
+    for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
+    {
+
+        String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
+        String childCodeData = codeData.substring(font_page * l, font_page * (l+1));
+        String childPixData = getPixDataFromHex(childCodeData);
+        int f = 0;
+        sscanf(childUnicode.c_str(), "%x", &f);
+
+        if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
+        {
+            if ((px + font_size / 2) > screenWidth)
+            {
+                // Serial.println(px + font_size / 2);
+                px = 0;
+                py += font_size + 1;
+            }
+            DrawSingleStr(px, py, childPixData, c, true);
+
+            px += font_size / 2 + 1;
+        }
+        else
+        {
+            if ((px + font_size) > screenWidth)
+            {
+                px = 0;
+                py += font_size + 1;
+            }
+            DrawSingleStr(px, py, childPixData, c, true);
+            px += font_size + 1;
+        }
+    }
+    
+    Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
 
 void XFont::DrawStr(int x, int y, String str, int color)
