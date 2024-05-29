@@ -351,8 +351,46 @@ bool XFont::chkAnsi(unsigned char c)
     return false;
 }
 
-void XFont::DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar)
+void XFont::DrawSingleStr(int x, int y, String strBinData, int fontColor,int backColor, bool ansiChar)
+{
+       unsigned long beginTime = millis();
+// 如果是ansi字符则只显示一半
+// int lw = ansiChar == false ? font_size : font_size / 2;
+#ifdef ARDUINO_GFX
+tft->startWrite();
+#endif
+    for (uint16_t i = 0; i < strBinData.length(); i++)
+    {
+        int pX1 = int(i % font_size);
+        int pY1 = int(i / font_size);
+        if (strBinData[i] == '1')
+        {
+            #ifdef ARDUINO_GFX
+            // tft->drawPixel(pX1 + x, pY1 + y, c);
+            tft->writePixelPreclipped(pX1 + x, pY1 + y, fontColor);
+            #elif defined(TFT_ESPI)
+            tft.drawPixel(pX1 + x, pY1 + y,fontColor);
+            #endif
+        }
+        else{
+            #ifdef ARDUINO_GFX
+            // tft->drawPixel(pX1 + x, pY1 + y, c);
+            tft->writePixelPreclipped(pX1 + x, pY1 + y, backColor);
+            #elif defined(TFT_ESPI)
+            tft.drawPixel(pX1 + x, pY1 + y, backColor);
+            #endif                
+         
+        }
+    }
 
+#ifdef ARDUINO_GFX
+tft->endWrite();
+#endif
+// Serial.printf("     字符像素显示耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+time_spent+=millis()  - beginTime;
+}
+
+void XFont::DrawSingleStr(int x, int y, String strBinData, int fontColor, bool ansiChar)
 {
        unsigned long beginTime = millis();
 // 如果是ansi字符则只显示一半
@@ -369,11 +407,12 @@ tft->startWrite();
             int pY1 = int(i / font_size);
 #ifdef ARDUINO_GFX
             // tft->drawPixel(pX1 + x, pY1 + y, c);
-            tft->writePixelPreclipped(pX1 + x, pY1 + y, c);
+            tft->writePixelPreclipped(pX1 + x, pY1 + y, fontColor);
 #elif defined(TFT_ESPI)
-            tft.drawPixel(pX1 + x, pY1 + y, c);
+            tft.drawPixel(pX1 + x, pY1 + y, fontColor);
 #endif
         }
+
     }
 
 #ifdef ARDUINO_GFX
@@ -410,8 +449,7 @@ String XFont::GetPixDatasFromLib(String displayStr){
 
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
 // 位置计算和字符显示分开
-void XFont::DrawStr2(int x, int y, String str, int c)
-
+void XFont::DrawStr2(int x, int y, String str, int fontColor,int backColor)
 {
 
     initZhiku(fontFilePath);
@@ -467,7 +505,11 @@ void XFont::DrawStr2(int x, int y, String str, int c)
                 px = 0;
                 py += font_size + 1;
             }
-            DrawSingleStr(px, py, childPixData, c, true);
+            //在外层判断backColor，是为了减少内层的每个像素的计算
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            else{
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+            }
 
             px += font_size / 2 + 1;
         }
@@ -478,42 +520,52 @@ void XFont::DrawStr2(int x, int y, String str, int c)
                 px = 0;
                 py += font_size + 1;
             }
-            DrawSingleStr(px, py, childPixData, c, true);
+            //在外层判断backColor，是为了减少内层的每个像素的计算
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            else{
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+            }
             px += font_size + 1;
         }
     }
     
     Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
-
-void XFont::DrawChinese(int x, int y, String str, int c)
+void XFont::DrawStr2(int x, int y, String str, int fontColor){
+    DrawStr2(x,y,str,fontColor,-1);
+}
+void XFont::DrawChinese(int x, int y, String str, int fontColor)
 {
-    if(isTftInited==false){
+  DrawChinese(x,y,str,fontColor,-1);
+}
+void XFont::DrawChinese(int x, int y, String str, int fontColor,int backColor){
+  if(isTftInited==false){
 
         Serial.printf(" 调用本方法必须先初始化TFT驱动。.\r\n");
     }
     else{
-        DrawStr2(x,y,str,c);
+        DrawStr2(x,y,str,fontColor,backColor);
     }
     Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
 }
 
-void XFont::DrawChineseEx(int x, int y, String str, int c)
+void XFont::DrawChineseEx(int x, int y, String str, int fontColor,int backColor)
 {
     if(isTftInited==false){
         Serial.printf(" 调用本方法必须先初始化TFT驱动。.\r\n");
     }
     else{
-         DrawStrEx(x,y,str,c);
+         DrawStrEx(x,y,str,fontColor,backColor);
     }
     Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
+}
+void XFont::DrawChineseEx(int x, int y, String str, int fontColor){
+    DrawChineseEx(x,y,str,fontColor,-1);
 }
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
 // 位置计算和字符显示分开
-void XFont::DrawStrEx(int x, int y, String str, int c)
-
+void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
 {
-
     initZhiku(fontFilePath);
     if (isInit == false)
     {
@@ -550,7 +602,11 @@ void XFont::DrawStrEx(int x, int y, String str, int c)
                 px = 0;
                 py += font_size + 1;
             }
-            DrawSingleStr(px, py, childPixData, c, true);
+            //在外层判断backColor，是为了减少内层的每个像素的计算
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            else{
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+            }
 
             px += font_size / 2 + 1;
         }
@@ -561,12 +617,20 @@ void XFont::DrawStrEx(int x, int y, String str, int c)
                 px = 0;
                 py += font_size + 1;
             }
-            DrawSingleStr(px, py, childPixData, c, true);
+            //在外层判断backColor，是为了减少内层的每个像素的计算
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            else{
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+            }
             px += font_size + 1;
         }
     }
     
     Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
+}
+
+void XFont::DrawStrEx(int x, int y, String str, int fontColor){
+    DrawStrEx(x,y,str,fontColor,-1);
 }
 
 void XFont::DrawStr(int x, int y, String str, int color)

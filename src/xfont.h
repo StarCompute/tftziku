@@ -35,14 +35,18 @@ public:
     TFT_eSPI tft = TFT_eSPI();
 #endif
 
-    void DrawStr2(int x, int y, String str, int c);
+    void DrawStr2(int x, int y, String str, int fontColor);
+    void DrawStr2(int x, int y, String str, int fontColor,int backColor);
+    void DrawStrEx(int x, int y, String str, int fontColor);
+    void DrawStrEx(int x, int y, String str, int fontColor,int backColor);
+    
+    // 在指定位置输出中文，本方法边读字库边显示
+    void DrawChinese(int x, int y, String str, int fontColor);
+    void DrawChinese(int x, int y, String str, int fontColor,int backColor);
 
-    void DrawStrEx(int x, int y, String str, int c);
-    // 在指定位置输出中文
-    void DrawChinese(int x, int y, String str, int c);
-
-    // 在指定位置输出中文,本方法是视觉上显示最快
-    void DrawChineseEx(int x, int y, String str, int c);
+    // 在指定位置输出中文,本方法是字库读完后，统一显示，视觉上显示最快
+    void DrawChineseEx(int x, int y, String str, int fontColor);
+    void DrawChineseEx(int x, int y, String str, int fontColor,int backColor);
 
     //直接从字库获得指定字符的像素编码,方便用于像素屏，例如
     //GetPixDatasFromLib("我"),返回：“000110100000011100100100000100100010000100100000111111111110000100100000000100100100000110101000001100010000110100110010000101001010001100000110”
@@ -57,8 +61,8 @@ protected:
     // 从字符的像素16进制字符重新转成二进制字符串
     String getPixDataFromHex(String s);
 
-    void DrawSingleStr(int x, int y, String strBinData, int c, bool ansiChar);
-
+    void DrawSingleStr(int x, int y, String strBinData, int fontColor,int backColor, bool ansiChar);
+   void DrawSingleStr(int x, int y, String strBinData, int fontColor, bool ansiChar);
     // 在屏幕上输出字符，暂时保留这个方法
     void DrawStr(int x, int y, String str, int color);
 
