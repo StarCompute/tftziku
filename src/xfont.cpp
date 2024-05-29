@@ -9,12 +9,25 @@
 XFont::XFont()
 {
     // Serial.println("Init.");
-    InitTFT();
+    // InitTFT();
+    XFont(false);
+}
+
+XFont::XFont(bool isTFT)
+{
+    unsigned long beginTime = millis();
+    if(isTFT==true)InitTFT();
+    //初始化字库，获得字库中的所有字符集
+
+    Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+    beginTime = millis();
+    initZhiku(fontFilePath);
+    Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
 }
 
 void XFont::InitTFT()
 {
-    unsigned long beginTime = millis();
+    
 #ifdef ARDUINO_GFX
     if (!tft->begin())
     {
@@ -38,12 +51,8 @@ void XFont::InitTFT()
     tft.drawString("pls waiting!",10, 10);
 
 #endif
-    //初始化字库，获得字库中的所有字符集
+    isTftInited=true;
 
-    Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
-    beginTime = millis();
-    initZhiku(fontFilePath);
-    Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
 }
 
 // 转化字符数组为字符串
@@ -479,13 +488,24 @@ void XFont::DrawStr2(int x, int y, String str, int c)
 
 void XFont::DrawChinese(int x, int y, String str, int c)
 {
-    DrawStr2(x,y,str,c);
+    if(isTftInited==false){
+
+        Serial.printf(" 调用本方法必须先初始化TFT驱动。.\r\n");
+    }
+    else{
+        DrawStr2(x,y,str,c);
+    }
     Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
 }
 
 void XFont::DrawChineseEx(int x, int y, String str, int c)
 {
-    DrawStrEx(x,y,str,c);
+    if(isTftInited==false){
+        Serial.printf(" 调用本方法必须先初始化TFT驱动。.\r\n");
+    }
+    else{
+         DrawStrEx(x,y,str,c);
+    }
     Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
 }
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。

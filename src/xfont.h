@@ -17,7 +17,10 @@ class XFont
 {
 
 public:
+    //默认初始化方法，不初始化TFT驱动
     XFont();
+    //带参数初始化方法，isTFT=true初始化TFT驱动
+    XFont(bool isTFT);
 
     File file;
 #ifdef ARDUINO_GFX
@@ -84,6 +87,7 @@ protected:
     const char *s64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
     int pX = 16;
     int pY = 0;
+    bool isTftInited=false;
 
     // 注意现在的显示字数是自动根据屏幕大下和字体大小计算的，以下暂时未生效，但是保留
     int amountDisplay = 10; // 每行显示多少汉字，其实这个显示数量应该通过屏幕的宽度来计算字号
