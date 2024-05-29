@@ -27,7 +27,7 @@ public:
 
     Arduino_DataBus *bus = create_default_Arduino_DataBus();
     // 注意，不同的tft屏幕驱动选择不同的对象
-    Arduino_GFX *tft = new Arduino_ST7735(bus);
+    Arduino_GFX *tft = new Arduino_ST7735(bus,-1,0,false,128,160,0,0,0,0,false);
 
 #define GFX_BL DF_GFX_BL
 
@@ -39,7 +39,7 @@ public:
     void DrawStr2(int x, int y, String str, int fontColor,int backColor);
     void DrawStrEx(int x, int y, String str, int fontColor);
     void DrawStrEx(int x, int y, String str, int fontColor,int backColor);
-    
+
     // 在指定位置输出中文，本方法边读字库边显示
     void DrawChinese(int x, int y, String str, int fontColor);
     void DrawChinese(int x, int y, String str, int fontColor,int backColor);

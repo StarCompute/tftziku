@@ -39,7 +39,7 @@ void XFont::InitTFT()
 #endif
     tft->setRotation(1);
     tft->setCursor(10, 10);
-    tft->fillScreen(BLACK);
+    tft->fillScreen(RED);
     tft->setTextColor(GREEN);
     // delay(200); // 5 seconds
 
