@@ -361,8 +361,13 @@ tft->startWrite();
 #endif
     for (uint16_t i = 0; i < strBinData.length(); i++)
     {
+
         int pX1 = int(i % font_size);
         int pY1 = int(i / font_size);
+        if(ansiChar){
+            uint16_t brk=i%font_size;
+            if(brk>(font_size/2))continue;
+        }        
         if (strBinData[i] == '1')
         {
             #ifdef ARDUINO_GFX
@@ -405,6 +410,10 @@ tft->startWrite();
         {
             int pX1 = int(i % font_size);
             int pY1 = int(i / font_size);
+            if(ansiChar){
+                uint16_t brk=i%font_size;
+                if(brk>(font_size/2))continue;
+            }          
 #ifdef ARDUINO_GFX
             // tft->drawPixel(pX1 + x, pY1 + y, c);
             tft->writePixelPreclipped(pX1 + x, pY1 + y, fontColor);
@@ -521,9 +530,9 @@ void XFont::DrawStr2(int x, int y, String str, int fontColor,int backColor)
                 py += font_size + 1;
             }
             //在外层判断backColor，是为了减少内层的每个像素的计算
-            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, false);
             else{
-                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, false);
             }
             px += font_size + 1;
         }
@@ -557,7 +566,7 @@ void XFont::DrawChineseEx(int x, int y, String str, int fontColor,int backColor)
     else{
          DrawStrEx(x,y,str,fontColor,backColor);
     }
-    Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
+    // Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
 }
 void XFont::DrawChineseEx(int x, int y, String str, int fontColor){
     DrawChineseEx(x,y,str,fontColor,-1);
@@ -573,8 +582,9 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
         return;
     }
     unsigned long beginTime = millis();
+    //获取字符的unicode编码
     String strUnicode = getUnicodeFromUTF8(str);
-    Serial.printf("     预处理要显示的汉字耗时:%.3f 秒.\r\n",(millis() - beginTime)/1000.0);
+    // Serial.printf("     预处理要显示的汉字耗时:%.3f 秒.\r\n",(millis() - beginTime)/1000.0);
     beginTime = millis();
     String codeData=getCodeDataFromFile(strUnicode);
     // Serial.println(codeData);
@@ -588,8 +598,10 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
     {
 
-        String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
+        String childUnicode = strUnicode.substring(4 * l, 4 * (l+1));
+        //获取对应的字库编码
         String childCodeData = codeData.substring(font_page * l, font_page * (l+1));
+        //字库编码转换成像素数据
         String childPixData = getPixDataFromHex(childCodeData);
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
@@ -618,15 +630,15 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
                 py += font_size + 1;
             }
             //在外层判断backColor，是为了减少内层的每个像素的计算
-            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, false);
             else{
-                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, false);
             }
             px += font_size + 1;
         }
     }
     
-    Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
+    // Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
 
 void XFont::DrawStrEx(int x, int y, String str, int fontColor){
