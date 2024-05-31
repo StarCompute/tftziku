@@ -25,6 +25,7 @@ public:
     File file;
 #ifdef ARDUINO_GFX
 
+    XFont(Arduino_GFX *gfx_tft);
     Arduino_DataBus *bus = create_default_Arduino_DataBus();
     // 注意，不同的tft屏幕驱动选择不同的对象
     Arduino_GFX *tft = new Arduino_ST7735(bus,-1,0,false,128,160,0,0,0,0,false);
@@ -52,6 +53,9 @@ public:
     //GetPixDatasFromLib("我"),返回：“000110100000011100100100000100100010000100100000111111111110000100100000000100100100000110101000001100010000110100110010000101001010001100000110”
     String GetPixDatasFromLib(String displayStr);
 
+#ifdef ARDUINO_GFX
+    void InitTFT(Arduino_GFX *gfx_tft);
+#endif  
 protected:
     void InitTFT();
     // 转化字符数组为字符串

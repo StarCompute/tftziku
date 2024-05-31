@@ -12,7 +12,18 @@ XFont::XFont()
     // InitTFT();
     XFont(false);
 }
-
+#ifdef ARDUINO_GFX
+    XFont::XFont(Arduino_GFX *gfx_tft)
+    {
+        unsigned long beginTime = millis();
+        InitTFT(gfx_tft);
+        //初始化字库，获得字库中的所有字符集
+        Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+        beginTime = millis();
+        initZhiku(fontFilePath);
+        Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+    }
+#endif
 XFont::XFont(bool isTFT)
 {
     unsigned long beginTime = millis();
@@ -33,10 +44,10 @@ void XFont::InitTFT()
     {
         Serial.println("gfx->begin() failed!");
     }
-#ifdef GFX_BL
-    pinMode(GFX_BL, OUTPUT);
-    digitalWrite(GFX_BL, HIGH);
-#endif
+    #ifdef GFX_BL
+        pinMode(GFX_BL, OUTPUT);
+        digitalWrite(GFX_BL, HIGH);
+    #endif
     tft->setRotation(1);
     tft->setCursor(10, 10);
     tft->fillScreen(RED);
@@ -54,7 +65,24 @@ void XFont::InitTFT()
     isTftInited=true;
 
 }
-
+#ifdef ARDUINO_GFX
+    void XFont:: InitTFT(Arduino_GFX *gfx_tft){
+        tft=gfx_tft;
+        if (!tft->begin())
+        {
+            Serial.println("gfx->begin() failed!");
+        }
+        #ifdef GFX_BL
+            pinMode(GFX_BL, OUTPUT);
+            digitalWrite(GFX_BL, HIGH);
+        #endif
+        tft->setRotation(1);
+        tft->setCursor(10, 10);
+        tft->fillScreen(RED);
+        tft->setTextColor(GREEN);     
+        isTftInited=true;   
+    }
+#endif  
 // 转化字符数组为字符串
 String XFont::getStringFromChars(uint8_t *bs, int l)
 {
