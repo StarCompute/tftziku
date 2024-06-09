@@ -270,7 +270,6 @@ void XFont::initZhiku(String fontPath)
 #endif
 
         Serial.printf("     字符总数:%d \r\n",strAllUnicodes.length());
-
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         // file.close();
         isInit = true;
@@ -281,7 +280,6 @@ void XFont::initZhiku(String fontPath)
     }
     // LittleFS.end();
 }
-
 
 
 // 从字库文件获取字符对应的二进制编码字符串
@@ -302,10 +300,6 @@ String XFont::getPixBinStrFromString(String strUnicode)
         {
             String _str = "u" + strUnicode.substring(i, i + 4);
 
-            // int cnt_page = (total_font_cnt + 6) / 6;'
-            // int cnt_page = total_font_cnt / 400 + 1;
-            // Serial.println(strAllUnicodes.length());
-            // Serial.println(_str);
             int uIdx = 0;
             // int p = strAllUnicodes.indexOf(_str);
             //下面代码用来查找定位，相对于string的indexof方法，性能相差10倍以上。
@@ -346,10 +340,6 @@ String XFont::getCodeDataFromFile(String strUnicode)
         {
             String _str = "u" + strUnicode.substring(i, i + 4);
 
-            // int cnt_page = (total_font_cnt + 6) / 6;'
-            // int cnt_page = total_font_cnt / 400 + 1;
-            // Serial.println(strAllUnicodes.length());
-            // Serial.println(_str);
             int uIdx = 0;
             char * chrFind=strstr(chrAllUnicodes,_str.c_str());
             int p =chrFind-strAllUnicodes.c_str();
@@ -449,9 +439,7 @@ tft->startWrite();
             tft.drawPixel(pX1 + x, pY1 + y, fontColor);
 #endif
         }
-
     }
-
 #ifdef ARDUINO_GFX
 tft->endWrite();
 #endif
@@ -476,17 +464,14 @@ String XFont::GetPixDatasFromLib(String displayStr){
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
         ret += getPixBinStrFromString(childUnicode);
-
-
     }
     return ret;
 }
 
 
-
 // DrawStr2尝试处理半角英文问题，是对DrawStr的修正。
 // 位置计算和字符显示分开
-void XFont::DrawStr2(int x, int y, String str, int fontColor,int backColor)
+void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
 {
 
     initZhiku(fontFilePath);
@@ -496,30 +481,16 @@ void XFont::DrawStr2(int x, int y, String str, int fontColor,int backColor)
         return;
     }
     unsigned long beginTime = millis();
-    // return;
-    // Serial.println("Init end.");
+
     String strUnicode = getUnicodeFromUTF8(str);
     Serial.printf("     预处理要显示的汉字耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
     beginTime = millis();
-    // String codeData=getCodeDataFromFile(strUnicode,fontFilePath);
-    // Serial.println(strUnicode);
+
     singleStrPixsAmount = font_size * font_size;
-    // String strBinData = getPixBinStrFromString(strUnicode, fontFilePath);
-    // Serial.println(strBinData);
-    // for(uint16_t d=0;d<strBinData.length();d++){
-    //     if(strBinData.charAt(d)== '0')Serial.print(" ");
-    //     if(strBinData.charAt(d)== '1')Serial.print("1");
-    //     if(d%font_size==0)Serial.println("");
-    //     if(d%(singleStrPixsAmount-1)==0)Serial.println("");
-    // }
+
     int px = 0;
     int py = 0;
-    // for (int i = 0; i < strBinData.length() / singleStrPixsAmount; i++)
-    // {
-    //     px = x + font_size * i;
-    //     py = y;
-    //     DrawSingleStr(tftOutput, px, py, strBinData.substring(singleStrPixsAmount * i, (singleStrPixsAmount) + singleStrPixsAmount * i), c, true);
-    // }
+
     px = x;
     py = y;
    
@@ -568,8 +539,8 @@ void XFont::DrawStr2(int x, int y, String str, int fontColor,int backColor)
     
     Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
-void XFont::DrawStr2(int x, int y, String str, int fontColor){
-    DrawStr2(x,y,str,fontColor,-1);
+void XFont::DrawStr(int x, int y, String str, int fontColor){
+    DrawStr(x,y,str,fontColor,-1);
 }
 void XFont::DrawChinese(int x, int y, String str, int fontColor)
 {
@@ -581,7 +552,7 @@ void XFont::DrawChinese(int x, int y, String str, int fontColor,int backColor){
         Serial.printf(" 调用本方法必须先初始化TFT驱动。.\r\n");
     }
     else{
-        DrawStr2(x,y,str,fontColor,backColor);
+        DrawStr(x,y,str,fontColor,backColor);
     }
     Serial.printf("     屏幕显示所有汉字耗时:%.3f 秒.\r\n",time_spent/1000.0);
 }
@@ -666,43 +637,9 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
         }
     }
     
-    // Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
+    Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
 
 void XFont::DrawStrEx(int x, int y, String str, int fontColor){
     DrawStrEx(x,y,str,fontColor,-1);
-}
-
-void XFont::DrawStr(int x, int y, String str, int color)
-{
-    initZhiku(fontFilePath);
-    singleStrPixsAmount = font_size * font_size;
-    // 下面的代码显示对应的汉字在TFT屏幕上
-
-    String strBinData = getPixBinStrFromString(str);
-    // Serial.println(strBinData);
-    amountDisplay = screenWidth / font_size; // 如果不愿意动态计算显示数量可以注释调这一行
-    int l1 = singleStrPixsAmount * amountDisplay;
-    int l2 = font_size * amountDisplay;
-    for (uint16_t i = 0; i < strBinData.length(); i++)
-    {
-
-        if (strBinData[i] == '1')
-        {
-            pX = int(i % font_size) + int(i / singleStrPixsAmount) * font_size - int(i / l1) * l2;
-
-            // 对于pY,每fontsize个像素后+1，每singleStrPixsAmount个像素后归0，同时每换一行，pY要加上fontsize个像素；
-            pY = int((i - int(i / singleStrPixsAmount) * singleStrPixsAmount) / font_size) + int(i / l1) * font_size;
-
-#ifdef ARDUINO_GFX
-            tft->drawPixel(pX + x, pY + y, color);
-#elif defined(TFT_ESPI)
-            tft.drawPixel(pX + x, pY + y, color);
-#endif
-        }
-        // else
-        // {
-        //   // tft.drawPixel(pX + x, pY + y, TFT_BLACK);
-        // }
-    }
 }

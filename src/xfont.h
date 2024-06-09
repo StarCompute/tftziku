@@ -36,8 +36,8 @@ public:
     TFT_eSPI tft = TFT_eSPI();
 #endif
 
-    void DrawStr2(int x, int y, String str, int fontColor);
-    void DrawStr2(int x, int y, String str, int fontColor,int backColor);
+    void DrawStr(int x, int y, String str, int fontColor);
+    void DrawStr(int x, int y, String str, int fontColor,int backColor);
     void DrawStrEx(int x, int y, String str, int fontColor);
     void DrawStrEx(int x, int y, String str, int fontColor,int backColor);
 
@@ -68,7 +68,7 @@ protected:
     void DrawSingleStr(int x, int y, String strBinData, int fontColor,int backColor, bool ansiChar);
    void DrawSingleStr(int x, int y, String strBinData, int fontColor, bool ansiChar);
     // 在屏幕上输出字符，暂时保留这个方法
-    void DrawStr(int x, int y, String str, int color);
+    // void DrawStr(int x, int y, String str, int color);
 
     // 初始化字库
     void initZhiku(String fontPath);

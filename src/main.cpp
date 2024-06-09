@@ -45,8 +45,12 @@ void setup()
   }
   Serial.printf("\r\n系统总启动和显示耗时：%3f",(millis()-myTime)/1000.0);
 }
+int cnt=222003;
 void loop()
 {
   delay(20);
-  
+  //  _xFont->DrawChineseEx(10, 10, "我们业精于勤荒于嬉戏，行成于思毁于随",GREEN,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
+   _xFont->DrawChineseEx(10, 100,"1中国2大财3",GREEN,BLACK); 
+   _xFont->DrawChineseEx(100, 100,(String)cnt,GREEN,BLACK); 
+   cnt++;
 }
