@@ -114,18 +114,21 @@ String XFont::getUnicodeFromUTF8(String s)
     int n = 0;
     for (uint16_t i = 0; i < s.length(); i++)
     {
-         if(s[i]>0 and s[i]<32){//特判ascii小于 32
-          if(s[i]==10 or s[i]==13 ){//特判回车换行
-            string_to_hex +="000A";
-            continue;
-          }
-          if( s[i]==9){//特判回车换行
-            string_to_hex +="0009";
-            continue;
-          }
-          s[i]=32;
-        }
-        if (s[i] >= 32 and s[i] <= 127)
+        // if (s[i] > 0 and s[i] < 32)
+        // { // 特判ascii小于 32
+        //     if (s[i] == 10 or s[i] == 13)
+        //     { // 特判回车换行
+        //         string_to_hex += "000a";
+        //         continue;
+        //     }
+        //     if (s[i] == 9)
+        //     { // 特判回车换行
+        //         string_to_hex += "0009";
+        //         continue;
+        //     }
+        //     s[i] = 32;
+        // }
+        if (s[i] >= 1 and s[i] <= 127)
         {
             // Serial.print(s[i]+" :");
             // Serial.println(s[i],DEC);
