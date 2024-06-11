@@ -28,7 +28,7 @@ void setup()
   // 以下两个办法显示同样的文字都是0.53秒，但是由于视觉原因，会感觉DrawChineseEx更快，实际一样，不过DrawChineseEx显示的字数太多的时候会存在风险。
   // _xFont->DrawChinese(10, 10, "业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。", c);
   // _xFont->DrawChineseEx(0, 10, "业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，行成于思毁于随。", c);
- _xFont->DrawChineseEx(0, 10, " 我\r爱\n你\n ! ", c);
+ _xFont->DrawChineseEx(0, 10, " 我\r 爱\n 你\n ! ", c);
   //部门改写已输出位置的文字，一定要加入backCOlor,否则不必。全部位置使用backColor会增加计算量。
   // _xFont->DrawChineseEx(10, 10, "我们",c,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
 // d000 \r
@@ -51,9 +51,9 @@ void setup()
 int cnt=222003;
 void loop()
 {
-  // delay(20);
-  // //  _xFont->DrawChineseEx(10, 10, "我们业精于勤荒于嬉戏，行成于思毁于随",GREEN,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
-  //  _xFont->DrawChineseEx(10, 100,"1中国2大财3",GREEN,BLACK); 
-  //  _xFont->DrawChineseEx(100, 100,(String)cnt,GREEN,BLACK); 
-  //  cnt++;
+  delay(20);
+  //  _xFont->DrawChineseEx(10, 10, "我们业精于勤荒于嬉戏，行成于思毁于随",GREEN,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
+   _xFont->DrawChineseEx(10, 100,"1中国2大财3",GREEN,BLACK); 
+   _xFont->DrawChineseEx(100, 100,(String)cnt,GREEN,BLACK); 
+   cnt++;
 }
