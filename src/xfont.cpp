@@ -97,9 +97,11 @@ String XFont::getStringFromChars(uint8_t *bs, int l)
     //     ret += (char)bs[i];
     //     // Serial.println(ret.length());
     // }
+    // return ret;
     char* input2 = (char *) bs;
     ret = input2;
     return ret.substring(0,l);
+    
 }
 
 // 把utf8编码字符转unicode编码
@@ -112,6 +114,17 @@ String XFont::getUnicodeFromUTF8(String s)
     int n = 0;
     for (uint16_t i = 0; i < s.length(); i++)
     {
+         if(s[i]>0 and s[i]<32){//特判ascii小于 32
+          if(s[i]==10 or s[i]==13 ){//特判回车换行
+            string_to_hex +="000A";
+            continue;
+          }
+          if( s[i]==9){//特判回车换行
+            string_to_hex +="0009";
+            continue;
+          }
+          s[i]=32;
+        }
         if (s[i] >= 32 and s[i] <= 127)
         {
             // Serial.print(s[i]+" :");
@@ -500,6 +513,7 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
         String childPixData = getPixBinStrFromString(childUnicode);
+        int8 sep=1;//字间距
         // return;
         // // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
         int f = 0;
@@ -507,11 +521,23 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
 
         if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
         {
+           if (f == 13 || f == 10) // 回车和换行\r\n的处理
+            {
+                px = 0;
+                py += font_size + sep;
+                continue;
+            }
+            else if (f == 9) //\t处理
+            {
+                px += font_size + sep;
+                continue;
+            }
+
             if ((px + font_size / 2) > screenWidth)
             {
                 // Serial.println(px + font_size / 2);
                 px = 0;
-                py += font_size + 1;
+                py += font_size + sep;
             }
             //在外层判断backColor，是为了减少内层的每个像素的计算
             if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
@@ -519,21 +545,21 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
                 DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
             }
 
-            px += font_size / 2 + 1;
+            px += font_size / 2 + sep;
         }
         else
         {
             if ((px + font_size) > screenWidth)
             {
                 px = 0;
-                py += font_size + 1;
+                py += font_size + sep;
             }
             //在外层判断backColor，是为了减少内层的每个像素的计算
             if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, false);
             else{
                 DrawSingleStr(px, py, childPixData, fontColor,backColor, false);
             }
-            px += font_size + 1;
+            px += font_size + sep;
         }
     }
     
@@ -583,17 +609,19 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
     unsigned long beginTime = millis();
     //获取字符的unicode编码
     String strUnicode = getUnicodeFromUTF8(str);
+    
     // Serial.printf("     预处理要显示的汉字耗时:%.3f 秒.\r\n",(millis() - beginTime)/1000.0);
     beginTime = millis();
     String codeData=getCodeDataFromFile(strUnicode);
     // Serial.println(codeData);
+    // Serial.printf("str: %s ，unicode: %s  codedata:%s \r\n",str,strUnicode,codeData);
     singleStrPixsAmount = font_size * font_size;
 
     int px = x;
     int py = y;
 
 //    int s=codeData.length()/str.length();
-
+// Serial.println(strUnicode);
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
     {
 
@@ -604,36 +632,49 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
         String childPixData = getPixDataFromHex(childCodeData);
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
+        int8 sep=1;//字间距
+        // Serial.printf("char:%d unicode: %s \r\n", f,childUnicode);
+
+
+        
 
         if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
         {
-            if ((px + font_size / 2) > screenWidth)
+            // Serial.println(f);
+
+            if (f == 13 || f == 10) // 回车和换行\r\n的处理
             {
-                // Serial.println(px + font_size / 2);
                 px = 0;
-                py += font_size + 1;
+                py += font_size + sep;
+                continue;
             }
+            else if (f == 9) //\t处理
+            {
+                px += font_size + sep;
+                continue;
+            }
+
             //在外层判断backColor，是为了减少内层的每个像素的计算
             if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
             else{
                 DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
             }
 
-            px += font_size / 2 + 1;
+            px += font_size / 2 + sep;
         }
         else
         {
             if ((px + font_size) > screenWidth)
             {
                 px = 0;
-                py += font_size + 1;
+                py += font_size + sep;
             }
             //在外层判断backColor，是为了减少内层的每个像素的计算
             if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, false);
             else{
                 DrawSingleStr(px, py, childPixData, fontColor,backColor, false);
             }
-            px += font_size + 1;
+            px += font_size + sep;
         }
     }
     
