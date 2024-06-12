@@ -3,7 +3,7 @@
 
 // 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
 #define ARDUINO_GFX
-// #define TFT_ESPI
+//#define TFT_ESPI
 
 #ifdef ARDUINO_GFX
 #include "Arduino_GFX_Library.h"
@@ -40,6 +40,7 @@ public:
     void DrawStr(int x, int y, String str, int fontColor,int backColor);
     void DrawStrEx(int x, int y, String str, int fontColor);
     void DrawStrEx(int x, int y, String str, int fontColor,int backColor);
+    void DrawStrFromUtf16(int x, int y,const uint16_t * str, int fontColor,int backColor, size_t length);
 
     // 在指定位置输出中文，本方法边读字库边显示
     void DrawChinese(int x, int y, String str, int fontColor);

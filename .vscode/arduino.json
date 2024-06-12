@@ -1,0 +1,7 @@
+{
+    "configuration": "JTAGAdapter=default,PSRAM=enabled,FlashMode=qio,FlashSize=16M,LoopCore=1,EventsCore=1,USBMode=default,CDCOnBoot=cdc,MSCOnBoot=default,DFUOnBoot=default,UploadMode=cdc,PartitionScheme=huge_app,CPUFreq=80,UploadSpeed=921600,DebugLevel=error,EraseFlash=none",
+    "board": "esp32:esp32:esp32s3",
+    "programmer": "esptool",
+    "port": "/dev/ttyACM0",
+    "sketch": "src/src.ino"
+}

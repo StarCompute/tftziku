@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <xfont.h>
+#include "xfont.h"
 #ifdef ARDUINO_GFX
     #include "Arduino_GFX_Library.h"
 #elif defined(TFT_ESPI)
@@ -60,7 +60,7 @@ void XFont::InitTFT()
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
     tft.drawString("pls waiting!",10, 10);
-
+    tft.fillScreen(TFT_BLACK);//这里忘了清屏
 #endif
     isTftInited=true;
 
@@ -506,6 +506,7 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
 
     int px = 0;
     int py = 0;
+    bool cr = false;//CR：Carriage Return
 
     px = x;
     py = y;
@@ -516,26 +517,45 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
         String childPixData = getPixBinStrFromString(childUnicode);
-        int8 sep=1;//字间距
+        int sep=1;//字间距
         // return;
         // // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
-        int f = 0;
+        int f = 0 ;
         sscanf(childUnicode.c_str(), "%x", &f);
 
         if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
         {
-           if (f == 13 || f == 10) // 回车和换行\r\n的处理
+            if (f == 13) // 回车和换行\r\n的处理
             {
+                cr = true;
                 px = 0;
                 py += font_size + sep;
                 continue;
             }
-            else if (f == 9) //\t处理
-            {
-                px += font_size + sep;
+            else if(f == 10){
+                if( cr != true){
+                    px = 0;
+                    py += font_size + sep;
+                    cr = false;
+                }
                 continue;
             }
-
+            else if (f == 9 or f == 32) //\t和空格处理
+            {
+                uint8_t max_cnt = f==9 ? 4 : 1 ;//默认情况下\t应该对应4个空格
+                for(uint8_t cnt = 0 ; cnt < max_cnt ; cnt++)
+                {
+                    if ((px + font_size / 2) > screenWidth)
+                    {
+                        px = 0;
+                        py += font_size + sep;
+                        continue;
+                    }
+                    px += font_size / 2 + sep;//\t的空格和u0032应该是一个半角空格
+                }
+                cr = false;
+                continue;
+            }
             if ((px + font_size / 2) > screenWidth)
             {
                 // Serial.println(px + font_size / 2);
@@ -564,6 +584,111 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
             }
             px += font_size + sep;
         }
+        cr = false;
+    }
+    
+    Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
+}
+// 直接读入utf16字符串，可以省略预处理，加快读取速度
+void XFont::DrawStrFromUtf16(int x, int y,const uint16_t * str, int fontColor,int backColor, size_t length)
+{
+
+    initZhiku(fontFilePath);
+    if (isInit == false)
+    {
+        Serial.println("字库初始化失败");
+        return;
+    }
+    unsigned long beginTime = millis();
+
+    singleStrPixsAmount = font_size * font_size;
+
+    int px = 0;
+    int py = 0;
+    bool cr = false;//CR：Carriage Return
+
+    px = x;
+    py = y;
+   
+
+    for (uint16_t l = 0; l < length / 4; l++)
+    {
+        
+        int f = str[l] ;
+        String childUnicode=String(f,HEX);
+        while(childUnicode.length()<4){
+            childUnicode="0" + childUnicode;
+        }
+        String childPixData = getPixBinStrFromString(childUnicode);
+        int sep=1;//字间距
+        // return;
+        // // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
+        
+        sscanf(childUnicode.c_str(), "%x", &f);
+
+        if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
+        {
+            if (f == 13 ) // 回车和换行\r\n的处理
+            {
+                cr = true;
+                px = 0;
+                py += font_size + sep;
+                continue;
+            }
+            else if(f == 10){
+                if( cr != true){
+                    px = 0;
+                    py += font_size + sep;
+                    cr = false;
+                    
+                }
+                continue;
+            }
+            else if (f == 9 or f == 32) //\t和空格处理
+            {
+                uint8_t max_cnt = f==9 ? 4 : 1 ;//默认情况下\t应该对应4个空格
+                for(uint8_t cnt = 0 ; cnt < max_cnt ; cnt++)
+                {
+                    if ((px + font_size / 2) > screenWidth)
+                    {
+                        px = 0;
+                        py += font_size + sep;
+                        continue;
+                    }
+                    px += font_size / 2 + sep;//\t的空格和u0032应该是一个半角空格
+                }
+                cr = false;
+                continue;
+            }
+            if ((px + font_size / 2) > screenWidth)
+            {
+                // Serial.println(px + font_size / 2);
+                px = 0;
+                py += font_size + sep;
+            }
+            //在外层判断backColor，是为了减少内层的每个像素的计算
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
+            else{
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, true);
+            }
+
+            px += font_size / 2 + sep;
+        }
+        else
+        {
+            if ((px + font_size) > screenWidth)
+            {
+                px = 0;
+                py += font_size + sep;
+            }
+            //在外层判断backColor，是为了减少内层的每个像素的计算
+            if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, false);
+            else{
+                DrawSingleStr(px, py, childPixData, fontColor,backColor, false);
+            }
+            px += font_size + sep;
+        }
+        cr = false;
     }
     
     Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
@@ -622,7 +747,7 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
 
     int px = x;
     int py = y;
-
+    bool cr = false;//CR：Carriage Return
 //    int s=codeData.length()/str.length();
 // Serial.println(strUnicode);
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
@@ -635,7 +760,7 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
         String childPixData = getPixDataFromHex(childCodeData);
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
-        int8 sep=1;//字间距
+        int sep=1;//字间距
         // Serial.printf("char:%d unicode: %s \r\n", f,childUnicode);
 
 
@@ -643,20 +768,37 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
 
         if (f <= 127) //如果是ansi字符，则只显示字符数据中的一半，并且显示位置也缩短了一半
         {
-            // Serial.println(f);
-
-            if (f == 13 || f == 10) // 回车和换行\r\n的处理
+            if (f == 13 ) // 回车和换行\r\n的处理
             {
+                cr = true;
                 px = 0;
                 py += font_size + sep;
                 continue;
             }
-            else if (f == 9) //\t处理
-            {
-                px += font_size + sep;
+            else if(f == 10){
+                if( cr != true){
+                    px = 0;
+                    py += font_size + sep;
+                    cr = false;
+                }
                 continue;
             }
-
+            else if (f == 9 or f == 32) //\t和空格处理
+            {
+                uint8_t max_cnt = f==9 ? 4 : 1 ;//默认情况下\t应该对应4个空格
+                for(uint8_t cnt = 0 ; cnt < max_cnt ; cnt++)
+                {
+                    if ((px + font_size / 2) > screenWidth)
+                    {
+                        px = 0;
+                        py += font_size + sep;
+                        continue;
+                    }
+                    px += font_size / 2 + sep;//\t的空格和u0032应该是一个半角空格
+                }
+                cr = false;
+                continue;
+            }
             //在外层判断backColor，是为了减少内层的每个像素的计算
             if(backColor==-1)DrawSingleStr(px, py, childPixData, fontColor, true);
             else{
@@ -680,7 +822,7 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
             px += font_size + sep;
         }
     }
-    
+    cr = false;
     Serial.printf("     屏幕输出汉字耗时:%2f 秒.\r\n",(millis()  - beginTime)/1000.0);
 }
 
