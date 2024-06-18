@@ -516,7 +516,7 @@ void XFont::DrawStr(int x, int y, String str, int fontColor,int backColor)
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
         String childPixData = getPixBinStrFromString(childUnicode);
-        int8 sep=1;//字间距
+        u_int sep=1;//字间距
         // return;
         // // String childPixData=getPixDataFromHex(codeData.substring(font_page * l, font_page + font_page * l));
         int f = 0;
@@ -635,7 +635,7 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
         String childPixData = getPixDataFromHex(childCodeData);
         int f = 0;
         sscanf(childUnicode.c_str(), "%x", &f);
-        int8 sep=1;//字间距
+        u_int sep=1;//字间距
         // Serial.printf("char:%d unicode: %s \r\n", f,childUnicode);
 
 
