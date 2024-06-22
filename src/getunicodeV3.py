@@ -340,7 +340,7 @@ _font_name="simsun.ttc"
 
 _font_lib_name="font\\x_"+_font_name+"_"+str(_font_size)+"_b"+str(_bin_type)+".font"
 
-_font_size_all=[12,14,16,18,12]
+_font_size_all=[12,14,16,18,24]
 _font_name_all=['simsun.ttc','msyh.ttc','simfang.ttf','simhei.ttf','simkai.ttf']
 for _fs in _font_size_all:
     for _fn in _font_name_all:

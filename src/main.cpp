@@ -37,10 +37,10 @@ void setup()
 // 9000 \t
 
   //以下方法直接获取像素并在串口输出
-  String _pixDatas=_xFont->GetPixDatasFromLib("我");
+  String _pixDatas=_xFont->GetPixDatasFromLib("1");
   int lenPixDatas=_pixDatas.length();
   for(int i=0;i<lenPixDatas;i++){
-    if(i%12==0)Serial.println("");
+    if(i%18==0)Serial.println("");
     if(_pixDatas[i]=='1')Serial.print(_pixDatas[i]);
     else {
       Serial.print(" ");
@@ -51,9 +51,9 @@ void setup()
 int cnt=222003;
 void loop()
 {
-  delay(20);
-  //  _xFont->DrawChineseEx(10, 10, "我们业精于勤荒于嬉戏，行成于思毁于随",GREEN,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
-   _xFont->DrawChineseEx(10, 100,"1中国2大财3",GREEN,BLACK); 
-   _xFont->DrawChineseEx(100, 100,(String)cnt,GREEN,BLACK); 
-   cnt++;
+  // delay(20);
+  // //  _xFont->DrawChineseEx(10, 10, "我们业精于勤荒于嬉戏，行成于思毁于随",GREEN,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
+  //  _xFont->DrawChineseEx(10, 100,"1中国2大财3",GREEN,BLACK); 
+  //  _xFont->DrawChineseEx(100, 100,(String)cnt,GREEN,BLACK); 
+  //  cnt++;
 }
