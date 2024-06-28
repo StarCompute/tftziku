@@ -319,6 +319,35 @@ x.font文件放在data目录下是一种上传标准，platformio有个upload的
 具体请请查阅platformio如何上传数据到单片机的相关内容。
 
 
+
+
+如何支持多字体，多字号文字的显示
+************************************************************************
+1，使用getunicodeV3.py创建字库文件，但是这个时候不建议创建完全字符集的字库，太大了；你需要显示什么就修改python文件中的FONT_ALL中对应的内容
+2，上传字库到单片机flash中；
+3，调用reInitZHiku重新初始化字库；
+4，显示汉字；
+
+如下代码所示。
+
+
+.. code-block:: 
+
+    // 下面的代码展示了如何对于多字体的支持
+    _xFont->reInitZHiku("/x_simkai.ttf_18_b64.font");
+    _xFont->DrawChineseEx(0, 0, "书山有路", c);
+
+    _xFont->reInitZHiku("/x_simsun.ttc_18_b64.font");
+    _xFont->DrawChineseEx(0, 30, "书山有路", c);
+
+    _xFont->reInitZHiku("/x_simhei.ttf_18_b64.font");
+    _xFont->DrawChineseEx(0, 62, "书山有路", c);
+
+    _xFont->reInitZHiku("/x_simfang.ttf_18_b64.font");
+    _xFont->DrawChineseEx(0, 92, "书山有路", c);
+
+
+
 PIL库停止维护问题
 ************************************************************************
 

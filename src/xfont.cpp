@@ -216,7 +216,10 @@ String XFont::getPixDataFromHex(String s)
     return ret.substring(0, font_size * font_size);
     // return "";
 }
-
+void XFont::reInitZHiku(String fontPath){
+    isInit=false;
+    initZhiku( fontPath);
+}
 void XFont::initZhiku(String fontPath)
 {
     if (isInit == true)
@@ -321,7 +324,7 @@ String XFont::getPixBinStrFromString(String strUnicode)
             //下面代码用来查找定位，相对于string的indexof方法，性能相差10倍以上。
             char * chrFind=strstr(chrAllUnicodes,_str.c_str());
             int p =chrFind-strAllUnicodes.c_str();
-            // Serial.printf("P: %d ,ddd : %d \r\n",p,ddd-strAllUnicodes.c_str());
+            Serial.printf("P: %d ,ddd : %d \r\n",p,chrFind-chrAllUnicodes);
             // strAllUnicodes.indexOf
             // Serial.print("p:"+(String)p);
 
@@ -475,6 +478,7 @@ String XFont::GetPixDatasFromLib(String displayStr){
     String ret="";
 
     String strUnicode = getUnicodeFromUTF8(displayStr);
+    Serial.println(strUnicode);
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
     {
 

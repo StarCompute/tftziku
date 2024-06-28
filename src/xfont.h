@@ -23,6 +23,7 @@ public:
     XFont(bool isTFT);
 
     File file;
+    bool isInit = false;
 #ifdef ARDUINO_GFX
 
     XFont(Arduino_GFX *gfx_tft);
@@ -53,6 +54,10 @@ public:
     //GetPixDatasFromLib("我"),返回：“000110100000011100100100000100100010000100100000111111111110000100100000000100100100000110101000001100010000110100110010000101001010001100000110”
     String GetPixDatasFromLib(String displayStr);
 
+    // 初始化字库
+    void initZhiku(String fontPath);
+    void reInitZHiku(String fontPath);
+
 #ifdef ARDUINO_GFX
     void InitTFT(Arduino_GFX *gfx_tft);
 #endif  
@@ -70,8 +75,7 @@ protected:
     // 在屏幕上输出字符，暂时保留这个方法
     // void DrawStr(int x, int y, String str, int color);
 
-    // 初始化字库
-    void initZhiku(String fontPath);
+
     // 从字库文件获取字符对应的编码字符串
     String getCodeDataFromFile(String strUnicode);
 
@@ -89,7 +93,7 @@ protected:
     int bin_type = 64;
     int font_size = 0;
     int font_page = 0;
-    bool isInit = false;
+    
     unsigned long time_spent = 0;
     String fontFilePath = "/x.font";
     const char *s64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";

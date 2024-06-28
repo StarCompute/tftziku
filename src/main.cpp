@@ -40,7 +40,7 @@ void setup()
   String _pixDatas=_xFont->GetPixDatasFromLib("1");
   int lenPixDatas=_pixDatas.length();
   for(int i=0;i<lenPixDatas;i++){
-    if(i%18==0)Serial.println("");
+    if(i%24==0)Serial.println("");
     if(_pixDatas[i]=='1')Serial.print(_pixDatas[i]);
     else {
       Serial.print(" ");
