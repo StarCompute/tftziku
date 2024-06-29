@@ -15,7 +15,7 @@ void setup()
     unsigned long myTime = millis();
     _xFont = new XFont(false);
 
-    // 注意,由于ram的显示,下面示例中的汉字不要太多,可以多次获取
+    // 注意,由于ram的限制,下面示例中的汉字不要太多,可以多次获取
     String _pixDatas = _xFont->GetPixDatasFromLib("永不为奴");
     int lenPixDatas = _pixDatas.length();
     for (int i = 0; i < lenPixDatas; i++)
