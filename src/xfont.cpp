@@ -27,10 +27,13 @@ XFont::XFont()
 XFont::XFont(bool isTFT)
 {
     unsigned long beginTime = millis();
-    if(isTFT==true)InitTFT();
-    //初始化字库，获得字库中的所有字符集
+    if(isTFT==true)
+    {
+        InitTFT();
+        //初始化字库，获得字库中的所有字符集
 
-    Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+        Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
+    }
     beginTime = millis();
     initZhiku(fontFilePath);
     Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
@@ -216,7 +219,7 @@ String XFont::getPixDataFromHex(String s)
     return ret.substring(0, font_size * font_size);
     // return "";
 }
-void XFont::reInitZHiku(String fontPath){
+void XFont::reInitZhiku(String fontPath){
     isInit=false;
     initZhiku( fontPath);
 }

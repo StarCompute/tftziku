@@ -29,31 +29,10 @@ void setup()
   // _xFont->DrawChinese(10, 10, "业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。", c);
   // _xFont->DrawChineseEx(0, 10, "业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，行成于思毁于随。", c);
  _xFont->DrawChineseEx(0, 10, " 我\r 爱\n 你\n ! ", c);
-  //部门改写已输出位置的文字，一定要加入backCOlor,否则不必。全部位置使用backColor会增加计算量。
-  // _xFont->DrawChineseEx(10, 10, "我们",c,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
-// d000 \r
-// a000 \n
-// d280 \r\n
-// 9000 \t
 
-  //以下方法直接获取像素并在串口输出
-  String _pixDatas=_xFont->GetPixDatasFromLib("1");
-  int lenPixDatas=_pixDatas.length();
-  for(int i=0;i<lenPixDatas;i++){
-    if(i%24==0)Serial.println("");
-    if(_pixDatas[i]=='1')Serial.print(_pixDatas[i]);
-    else {
-      Serial.print(" ");
-    }
-  }
-  Serial.printf("\r\n系统总启动和显示耗时：%3f",(millis()-myTime)/1000.0);
 }
-int cnt=222003;
+
 void loop()
 {
-  // delay(20);
-  // //  _xFont->DrawChineseEx(10, 10, "我们业精于勤荒于嬉戏，行成于思毁于随",GREEN,BLACK); //注意，arduino_gfx的RGB可能是BGR，这点要注意
-  //  _xFont->DrawChineseEx(10, 100,"1中国2大财3",GREEN,BLACK); 
-  //  _xFont->DrawChineseEx(100, 100,(String)cnt,GREEN,BLACK); 
-  //  cnt++;
+
 }

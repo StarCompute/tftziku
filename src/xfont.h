@@ -56,7 +56,7 @@ public:
 
     // 初始化字库
     void initZhiku(String fontPath);
-    void reInitZHiku(String fontPath);
+    void reInitZhiku(String fontPath);
 
 #ifdef ARDUINO_GFX
     void InitTFT(Arduino_GFX *gfx_tft);

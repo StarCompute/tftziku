@@ -334,18 +334,20 @@ x.font文件放在data目录下是一种上传标准，platformio有个upload的
 .. code-block:: 
 
     // 下面的代码展示了如何对于多字体的支持
-    _xFont->reInitZHiku("/x_simkai.ttf_18_b64.font");
+    _xFont->reInitZhiku("/x_simkai.ttf_18_b64.font");
     _xFont->DrawChineseEx(0, 0, "书山有路", c);
 
-    _xFont->reInitZHiku("/x_simsun.ttc_18_b64.font");
+    _xFont->reInitZhiku("/x_simsun.ttc_18_b64.font");
     _xFont->DrawChineseEx(0, 30, "书山有路", c);
 
-    _xFont->reInitZHiku("/x_simhei.ttf_18_b64.font");
+    _xFont->reInitZhiku("/x_simhei.ttf_18_b64.font");
     _xFont->DrawChineseEx(0, 62, "书山有路", c);
 
-    _xFont->reInitZHiku("/x_simfang.ttf_18_b64.font");
+    _xFont->reInitZhiku("/x_simfang.ttf_18_b64.font");
     _xFont->DrawChineseEx(0, 92, "书山有路", c);
 
+
+注意：系统默认调用的字库是x.font,如果reInitZhiku一种字库后，x.font的配置被覆盖，如果要使用x.font，必须reInitZhiku('/x.font')才可以正常调用。
 
 
 PIL库停止维护问题
