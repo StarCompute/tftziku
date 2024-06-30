@@ -38,6 +38,13 @@ XFont::XFont(bool isTFT)
     initZhiku(fontFilePath);
     Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
 }
+XFont:: ~XFont(void){
+    clear();
+}
+void XFont:: clear(void){
+    if(file)file.close();
+    strAllUnicodes=String("");
+}
 
 void XFont::InitTFT()
 {

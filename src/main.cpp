@@ -3,8 +3,10 @@
 #include "xfont.h"
 
 XFont *_xFont;
+
 void setup()
 {
+
   Serial.begin(115200);
   Serial.println("Init.");
   int c=0;
@@ -23,12 +25,17 @@ void setup()
   #elif defined(TFT_ESPI) 
     _xFont = new XFont(true);
   #endif
-  
   Serial.printf("对象初始化耗时：%.3f \r\n",(millis()-myTime)/1000.0);
   // 以下两个办法显示同样的文字都是0.53秒，但是由于视觉原因，会感觉DrawChineseEx更快，实际一样，不过DrawChineseEx显示的字数太多的时候会存在风险。
   // _xFont->DrawChinese(10, 10, "业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。业精于勤荒于嬉戏，行成于思毁于随。", c);
   // _xFont->DrawChineseEx(0, 10, "业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，\n行成于思毁于随。\r\n业精于勤荒于嬉戏，行成于思毁于随。", c);
+  
  _xFont->DrawChineseEx(0, 10, " 我\r 爱\n 你\n ! ", c);
+// 下面两种方法都可以清除内存占用 
+ _xFont->clear();
+//  delete _xFont;
+ 
+  Serial.printf("销毁后剩余内存: %.3f k \n"  ,ESP.getFreeHeap()/1024.0);
 
 }
 

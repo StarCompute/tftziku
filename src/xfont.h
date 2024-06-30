@@ -56,7 +56,11 @@ public:
 
     // 初始化字库
     void initZhiku(String fontPath);
+    //重新初始化新的字库
     void reInitZhiku(String fontPath);
+    //清除内存占用，释放40k的空间
+    void clear(void);
+     ~XFont(void);
 
 #ifdef ARDUINO_GFX
     void InitTFT(Arduino_GFX *gfx_tft);
