@@ -69,7 +69,8 @@ void XFont::InitTFT()
     tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
-    tft.drawString("pls waiting!",10, 10);
+    // tft.drawString("pls waiting!",10, 10);
+    tft.drawPixel(1,1,TFT_GREEN);
 
 #endif
     isTftInited=true;

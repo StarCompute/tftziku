@@ -32,7 +32,7 @@ void setup()
   
  _xFont->DrawChineseEx(0, 10, " 我\r 爱\n 你\n ! ", c);
 // 下面两种方法都可以清除内存占用 
- _xFont->clear();
+//  _xFont->clear();
 //  delete _xFont;
  
   Serial.printf("销毁后剩余内存: %.3f k \n"  ,ESP.getFreeHeap()/1024.0);

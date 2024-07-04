@@ -2,8 +2,8 @@
 #include <LittleFS.h>
 
 // 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
-#define ARDUINO_GFX
-// #define TFT_ESPI
+// #define ARDUINO_GFX
+#define TFT_ESPI
 
 #ifdef ARDUINO_GFX
 #include "Arduino_GFX_Library.h"
