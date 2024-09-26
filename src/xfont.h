@@ -2,8 +2,8 @@
 #include <LittleFS.h>
 
 // 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
-// #define ARDUINO_GFX
-#define TFT_ESPI
+#define ARDUINO_GFX
+// #define TFT_ESPI
 
 #ifdef ARDUINO_GFX
 #include "Arduino_GFX_Library.h"
@@ -110,8 +110,8 @@ protected:
 
     // 注意：如果屏幕设置了不同的旋转方式，以下代码应该对应调整
 #ifdef ARDUINO_GFX
-    int screenHeight = 128;
-    int screenWidth = 160;
+    int screenHeight = 240;
+    int screenWidth = 320;
 #elif defined(TFT_ESPI)
     int screenHeight = TFT_WIDTH;
     int screenWidth = TFT_HEIGHT;

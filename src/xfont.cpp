@@ -60,13 +60,15 @@ void XFont::InitTFT()
     #endif
     tft->setRotation(1);
     tft->setCursor(10, 10);
-    tft->fillScreen(RED);
+    tft->fillScreen(BLACK);
     tft->setTextColor(GREEN);
     // delay(200); // 5 seconds
 
 #elif defined(TFT_ESPI)
     tft.begin();
+    
     tft.setRotation(1);
+
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
     // tft.drawString("pls waiting!",10, 10);
@@ -89,7 +91,7 @@ void XFont::InitTFT()
         #endif
         tft->setRotation(1);
         tft->setCursor(10, 10);
-        tft->fillScreen(RED);
+        tft->fillScreen(BLACK);
         tft->setTextColor(GREEN);     
         isTftInited=true;   
     }
@@ -270,16 +272,16 @@ void XFont::initZhiku(String fontPath)
         // String font_unicode = "";
 
 // 如果是esp32系统，因为ram比较大，一次性读取出所有字符
-#if defined(ESP32)
-        uint8_t *buf_total_str_unicode;
-        buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
-        Serial.println(font_unicode_cnt);
-        file.read(buf_total_str_unicode, font_unicode_cnt);
-        strAllUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
-        free(buf_total_str_unicode);
-// 如果是esp8266或者其他系统则每次读取1k的内存一直到读完
-// #elif defined (ARDUINO_ARCH_ESP8266)
-#else
+// #if defined(ESP32)
+//         uint8_t *buf_total_str_unicode;
+//         buf_total_str_unicode = (uint8_t *)malloc(font_unicode_cnt);
+//         Serial.println(font_unicode_cnt);
+//         file.read(buf_total_str_unicode, font_unicode_cnt);
+//         strAllUnicodes = getStringFromChars(buf_total_str_unicode, font_unicode_cnt);
+//         free(buf_total_str_unicode);
+// // 如果是esp8266或者其他系统则每次读取1k的内存一直到读完
+// // #elif defined (ARDUINO_ARCH_ESP8266)
+// #else
         strAllUnicodes="";
         uint8_t *buf_total_str_unicode2;
         int laststr = font_unicode_cnt;
@@ -297,7 +299,7 @@ void XFont::initZhiku(String fontPath)
             /* code */
         } while (laststr > 0);
         free(buf_total_str_unicode2);
-#endif
+// #endif
 
         Serial.printf("     字符总数:%d \r\n",strAllUnicodes.length());
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;

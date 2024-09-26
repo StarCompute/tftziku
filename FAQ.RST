@@ -127,7 +127,7 @@ simkai.ttf      楷体
 
 simhei.ttf      黑体
 
-msyh.ttc        微软雅黑
+
 
 
 并且已经创建了12，14，16和18号字体，都可以拷贝到data目录下命名为x.font ，上传到单片机直接调用
