@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 
+// #define SAVE_MEMORY
+
 // 注意，使用不同的屏幕驱动应该对下面的代码进行不同的注释
 // #define ARDUINO_GFX
 #define TFT_ESPI

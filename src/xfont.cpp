@@ -280,6 +280,7 @@ void XFont::initZhiku(String fontPath)
 // // 如果是esp8266或者其他系统则每次读取1k的内存一直到读完
 // // #elif defined (ARDUINO_ARCH_ESP8266)
 // #else
+#ifndef SAVE_MEMORY
         strAllUnicodes="";
         uint8_t *buf_total_str_unicode2;
         int laststr = font_unicode_cnt;
@@ -297,7 +298,8 @@ void XFont::initZhiku(String fontPath)
             /* code */
         } while (laststr > 0);
         free(buf_total_str_unicode2);
-// #endif
+        
+#endif
 
         Serial.printf("     字库中字符总数:%d \r\n",strAllUnicodes.length()/5);
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
@@ -332,16 +334,45 @@ String XFont::getPixBinStrFromString(String strUnicode)
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
         {
             String _str = "u" + strUnicode.substring(i, i + 4);
-
+            
+            int p=0; 
             int uIdx = 0;
-            // int p = strAllUnicodes.indexOf(_str);
-            //下面代码用来查找定位，相对于string的indexof方法，性能相差10倍以上。
+            #ifndef SAVE_MEMORY 
             char * chrFind=strstr(chrAllUnicodes,_str.c_str());
-            int p =chrFind-strAllUnicodes.c_str();
-            Serial.printf("P: %d ,ddd : %d \r\n",p,chrFind-chrAllUnicodes);
-            // strAllUnicodes.indexOf
-            // Serial.print("p:"+(String)p);
+            p =chrFind-chrAllUnicodes;
+            #else
+            //低性能磁盘查找
+            fontFile.seek(10);
+            // if(fontFile.find(_str.c_str())){
+            //     p=fontFile.position()-15;
+                
+            // }
 
+            uint8_t *buf_total_str_unicode2;
+            int laststr = font_unicode_cnt;
+            int read_size=512*5;
+            buf_total_str_unicode2 = (uint8_t *)malloc(read_size);
+            int loopcnt=0;
+            do
+            {
+                size_t k = read_size;
+                if (laststr < read_size)
+                    k = laststr;
+                fontFile.read(buf_total_str_unicode2, k);
+                String t1=(char*)buf_total_str_unicode2;
+                // Serial.println(t1);
+                p =t1.indexOf(_str);
+            
+                // if(p>0)Serial.printf("%d ;",p);
+                laststr -= read_size;
+                /* code */
+                if(p>0)break;
+                loopcnt++;
+            } while (laststr > 0);
+            free(buf_total_str_unicode2);
+
+            p=p+loopcnt*512*5;
+            #endif
             uIdx = p / 5;
             Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
@@ -379,13 +410,45 @@ String XFont::getCodeDataFromFile(String strUnicode)
         for (uint16_t i = 0; i < strUnicode.length(); i = i + 4)
         {
             String _str = "u" + strUnicode.substring(i, i + 4);
-
+            int p=0; 
             int uIdx = 0;
+            #ifndef SAVE_MEMORY 
             char * chrFind=strstr(chrAllUnicodes,_str.c_str());
-            int p =chrFind-strAllUnicodes.c_str();
-            // int p = strAllUnicodes.indexOf(_str);
-            // Serial.print("p:"+(String)p);
+            p =chrFind-chrAllUnicodes;
+            #else
+            //低性能磁盘查找
+            fontFile.seek(10);
+            // if(fontFile.find(_str.c_str())){
+            //     p=fontFile.position()-15;
+                
+            // }
 
+            uint8_t *buf_total_str_unicode2;
+            int laststr = font_unicode_cnt;
+            int read_size=512*5;
+            buf_total_str_unicode2 = (uint8_t *)malloc(read_size);
+            int loopcnt=0;
+            do
+            {
+                size_t k = read_size;
+                if (laststr < read_size)
+                    k = laststr;
+                fontFile.read(buf_total_str_unicode2, k);
+                String t1=(char*)buf_total_str_unicode2;
+                // Serial.println(t1);
+                p =t1.indexOf(_str);
+            
+                // if(p>0)Serial.printf("%d ;",p);
+                laststr -= read_size;
+                /* code */
+                if(p>0)break;
+                loopcnt++;
+            } while (laststr > 0);
+            free(buf_total_str_unicode2);
+
+            p=p+loopcnt*512*5;
+            #endif
+            // Serial.println(p+loopcnt*512*5);
             uIdx = p / 5;
             // Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
