@@ -29,11 +29,13 @@ XFont::XFont(bool isTFT)
     unsigned long beginTime = millis();
     if(isTFT==true)
     {
+        
         InitTFT();
         //初始化字库，获得字库中的所有字符集
 
         Serial.printf("     TFT初始化耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
     }
+
     beginTime = millis();
     initZhiku(fontFilePath);
     Serial.printf("     装载字符集耗时:%2f 秒.\r\n",(millis() - beginTime)/1000.0);
@@ -42,7 +44,7 @@ XFont:: ~XFont(void){
     clear();
 }
 void XFont:: clear(void){
-    if(file)file.close();
+    if(fontFile)fontFile.close();
     strAllUnicodes=String("");
 }
 
@@ -66,13 +68,16 @@ void XFont::InitTFT()
 
 #elif defined(TFT_ESPI)
     tft.begin();
-    
+        
     tft.setRotation(1);
 
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_GREEN);
     // tft.drawString("pls waiting!",10, 10);
-    tft.drawPixel(1,1,TFT_GREEN);
+    // tft.drawPixel(1,1,TFT_GREEN);
+    // tft.drawPixel(100,100,TFT_GREEN);
+    // tft.println("pls waiting.");
+    // tft.drawString("pls wait.",10,10);
 
 #endif
     isTftInited=true;
@@ -113,6 +118,7 @@ String XFont::getStringFromChars(uint8_t *bs, int l)
     // return ret;
     char* input2 = (char *) bs;
     ret = input2;
+    // Serial.println(ret);
     return ret.substring(0,l);
     
 }
@@ -185,49 +191,41 @@ int XFont::getFontPage(int font_size, int bin_type)
     return hexAmount * 2;
 }
 
-// 从字符的像素16进制字符重新转成二进制字符串
+// 从字符的像素64进制字符重新转成二进制字符串
 String XFont::getPixDataFromHex(String s)
 {
-    String  ret = "";
     // Serial.println(s);
     int l = s.length();
-    char ch[font_size * font_size];
+    // char   ch[font_size * font_size];
+    // char * ch2=(char*)malloc(font_size * font_size * sizeof(char));;
     int cnt=0;
-    // String s32 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#*$";
+    String ret="";
     // 注意，这里是两个字符进行的处理
-    int cc = 3;
-    // if (bin_type == 32)
-    //     cc = 4;
-    if (bin_type == 64)
-        cc = 5;
-    for (int i = 0; i < l; i++)
-    {
-        // String ch = (String)s[i];
-        // int d = s32.indexOf(ch);
+    int cc = 5;
 
-        int d=strchr( s64,s[i])-s64;
+    for (int ii = 0; ii < l; ii++)
+    {
+
+        int d=strchr( s64,s[ii])-s64;
         // Serial.println(d);
         // 下面用了bitread来获取数字对应的二进制，bitread(value,k)是读取数字value中的二进制的第k位的值。
         // 使用bitread就没有使用getBin这种方式了，但是保留了两种getbin函数
 
         for (int k = cc; k >= 0; k--)
         {
-            ch[cnt]=48+(int)bitRead(d, k);
-            // Serial.print(ddd);
+            // ch[cnt]=48+(int)bitRead(d, k);
+            ret+=(String)bitRead(d, k);
+            // ch2[cnt]=48+(int)bitRead(d, k);
+            // ch2[cnt]=ch[cnt];
             cnt++;
-            // ret.concat();
-            // strcat(ret,s);
-            // strncat(ch,s.c_str(),1);
-            // ret += bitRead(d, k);
-            // retNoReturn=retNoReturn+(String)sa[k];
         }
     }
-
-    // Serial.println((String)ch);
-    // Serial.println(retNoReturn);
-    ret=(String)ch;
-    return ret.substring(0, font_size * font_size);
-    // return "";
+    // ret=(String)ch2;
+    // ch2="  ";
+    // free(ch2) ;
+    // Serial.println(ch2);
+    // return ret.substring(0,font_size * font_size);
+    return ret;
 }
 void XFont::reInitZhiku(String fontPath){
     isInit=false;
@@ -244,16 +242,16 @@ void XFont::initZhiku(String fontPath)
     }
     if (LittleFS.exists(fontPath))
     {
-        file = LittleFS.open(fontPath, "r");
+        fontFile = LittleFS.open(fontPath, "r");
 
         static uint8_t buf_total_str[6];
         static uint8_t buf_font_size[2];
         static uint8_t buf_bin_type[2];
         // Serial.println(file.position());
-        file.read(buf_total_str, 6);
+        fontFile.read(buf_total_str, 6);
         // Serial.println(file.position());
-        file.read(buf_font_size, 2);
-        file.read(buf_bin_type, 2);
+        fontFile.read(buf_font_size, 2);
+        fontFile.read(buf_bin_type, 2);
         // 下面代码获取总字数和字号
         String s1 = getStringFromChars(buf_total_str, 6);
         String s2 = getStringFromChars(buf_font_size, 2);
@@ -293,7 +291,7 @@ void XFont::initZhiku(String fontPath)
             size_t k = read_size;
             if (laststr < read_size)
                 k = laststr;
-            file.read(buf_total_str_unicode2, k);
+            fontFile.read(buf_total_str_unicode2, k);
             strAllUnicodes += getStringFromChars(buf_total_str_unicode2, k);
             laststr -= read_size;
             /* code */
@@ -301,16 +299,18 @@ void XFont::initZhiku(String fontPath)
         free(buf_total_str_unicode2);
 // #endif
 
-        Serial.printf("     字符总数:%d \r\n",strAllUnicodes.length());
+        Serial.printf("     字库中字符总数:%d \r\n",strAllUnicodes.length()/5);
         unicode_begin_idx = 6 + 2 + 2 + total_font_cnt * 5;
         // file.close();
         isInit = true;
+        fontFile.close();
     }
     else
     {
         Serial.println("LitteFS系统工作正常，但是找不到字库文件。");
     }
     // LittleFS.end();
+   
 }
 
 
@@ -321,8 +321,9 @@ String XFont::getPixBinStrFromString(String strUnicode)
     initZhiku(fontFilePath);
     String ret = "";
     // Serial.println(fontPath);
-    if  (file)
+    if  (!fontFile)
     {
+        fontFile = LittleFS.open(fontFilePath, "r");
         // File file = LittleFS.open(fontPath, "r");
         // file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
@@ -342,15 +343,22 @@ String XFont::getPixBinStrFromString(String strUnicode)
             // Serial.print("p:"+(String)p);
 
             uIdx = p / 5;
-            // Serial.println(uIdx);
+            Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
-            file.seek(pixbeginidx);
-            file.read(buf_seek_pixdata, font_page);
+            fontFile.seek(pixbeginidx);
+            fontFile.read(buf_seek_pixdata, font_page);
             String su = getStringFromChars(buf_seek_pixdata, font_page);
-            // Serial.println(su);
-            ret += getPixDataFromHex(su);
+            Serial.println(su);
+            // delay(1);
+            // delayMicroseconds(990);
+            // Serial.println(getPixDataFromHex(su));
+            String ts=getPixDataFromHex(su);
+            // Serial.println(ts);
+            // Serial.printf("out %s ,\r\n kaka",ts);
+            
+            ret +=ts;
         }
-        // file.close();
+        fontFile.close();
     }
     return ret;
 }
@@ -361,9 +369,9 @@ String XFont::getCodeDataFromFile(String strUnicode)
 
     String ret = "";
     // Serial.println(fontPath);
-    if (file)
+    if (!fontFile)
     {
-        // File file = LittleFS.open(fontPath, "r");
+        fontFile = LittleFS.open(fontFilePath, "r");
         // file.seek(0);
         uint8_t buf_seek_pixdata[font_page];
         String ff = "";
@@ -381,16 +389,17 @@ String XFont::getCodeDataFromFile(String strUnicode)
             uIdx = p / 5;
             // Serial.println(uIdx);
             int pixbeginidx = unicode_begin_idx + uIdx * font_page;
-            file.seek(pixbeginidx);
-            file.read(buf_seek_pixdata, font_page);
+            fontFile.seek(pixbeginidx);
+            fontFile.read(buf_seek_pixdata, font_page);
             String su = getStringFromChars(buf_seek_pixdata, font_page);
             // Serial.println(su);
             ret += su;
         }
-        // file.close();
+       fontFile.close();
     }
     // Serial.println(ret);
     return ret;
+    
 }
 
 // 判断是否ansi字符
@@ -412,8 +421,8 @@ tft->startWrite();
     for (uint16_t i = 0; i < strBinData.length(); i++)
     {
 
-        int pX1 = int(i % font_size);
-        int pY1 = int(i / font_size);
+        int pX1 = int(i % font_size)+x;
+        int pY1 = int(i / font_size)+y;
         if(ansiChar){
             uint16_t brk=i%font_size;
             if(brk>(font_size/2))continue;
@@ -422,17 +431,19 @@ tft->startWrite();
         {
             #ifdef ARDUINO_GFX
             // tft->drawPixel(pX1 + x, pY1 + y, c);
-            tft->writePixelPreclipped(pX1 + x, pY1 + y, fontColor);
+            tft->writePixelPreclipped(pX1, pY1, fontColor);
             #elif defined(TFT_ESPI)
-            tft.drawPixel(pX1 + x, pY1 + y,fontColor);
+            // tft.drawPixel(pX1 + x, pY1 + y,fontColor);
+            tft.fillRect(pX1,pY1,1,1,fontColor);
             #endif
         }
         else{
             #ifdef ARDUINO_GFX
             // tft->drawPixel(pX1 + x, pY1 + y, c);
-            tft->writePixelPreclipped(pX1 + x, pY1 + y, backColor);
+            tft->writePixelPreclipped(pX1, pY1, backColor);
             #elif defined(TFT_ESPI)
-            tft.drawPixel(pX1 + x, pY1 + y, backColor);
+            // tft.drawPixel(pX1, pY1, backColor);
+            tft.fillRect(pX1,pY1,1,1,backColor);
             #endif                
          
         }
@@ -458,17 +469,24 @@ tft->startWrite();
 
         if (strBinData[i] == '1')
         {
-            int pX1 = int(i % font_size);
-            int pY1 = int(i / font_size);
+            int pX1 = int(i % font_size)+x;
+            int pY1 = int(i / font_size)+y;
             if(ansiChar){
                 uint16_t brk=i%font_size;
                 if(brk>(font_size/2))continue;
             }          
 #ifdef ARDUINO_GFX
             // tft->drawPixel(pX1 + x, pY1 + y, c);
-            tft->writePixelPreclipped(pX1 + x, pY1 + y, fontColor);
+            tft->writePixelPreclipped(pX1, pY1, fontColor);
 #elif defined(TFT_ESPI)
-            tft.drawPixel(pX1 + x, pY1 + y, fontColor);
+            // tft.startWrite();
+            // tft.drawPixel(pX1 + x, pY1 + y, fontColor);
+            // tft.drawPixel(pX1, pY1, fontColor);
+            tft.fillRect(pX1,pY1,1,1,fontColor);
+            // Serial.printf(" %d ,",pY1);
+            // tft.setAddrWindow(pX1 , pY1 ,1,1);
+            // tft.pushColor(fontColor);
+            // tft.endWrite();
 #endif
         }
     }
@@ -492,11 +510,14 @@ String XFont::GetPixDatasFromLib(String displayStr){
 
     String strUnicode = getUnicodeFromUTF8(displayStr);
     Serial.println(strUnicode);
+    // return "";
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)
     {
 
         String childUnicode = strUnicode.substring(4 * l, (4) + 4 * l);
+        Serial.println(childUnicode);
         ret += getPixBinStrFromString(childUnicode);
+        // Serial.println(ret);
     }
     return ret;
 }
@@ -626,20 +647,22 @@ void XFont::DrawStrEx(int x, int y, String str, int fontColor,int backColor)
         Serial.println("字库初始化失败");
         return;
     }
+
     unsigned long beginTime = millis();
     //获取字符的unicode编码
     String strUnicode = getUnicodeFromUTF8(str);
-    
+ 
     // Serial.printf("     预处理要显示的汉字耗时:%.3f 秒.\r\n",(millis() - beginTime)/1000.0);
     beginTime = millis();
     String codeData=getCodeDataFromFile(strUnicode);
+        //    return;
     // Serial.println(codeData);
     // Serial.printf("str: %s ，unicode: %s  codedata:%s \r\n",str,strUnicode,codeData);
     singleStrPixsAmount = font_size * font_size;
 
     int px = x;
     int py = y;
-
+// return;
 //    int s=codeData.length()/str.length();
 // Serial.println(strUnicode);
     for (uint16_t l = 0; l < strUnicode.length() / 4; l++)

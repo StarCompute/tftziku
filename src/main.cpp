@@ -33,19 +33,19 @@ void setup()
 
   // 下面代码切换字体并输出
   // _xFont->reInitZhiku("/x_simfang.ttf_24_b64.font");
- _xFont->tft->drawRect(0,164,320,71,WHITE);
- _xFont->tft->fillRect(0,164,320,71,DARKGREY);
- _xFont->tft->setTextSize(6);
- _xFont->tft->drawChar(1,170,'2',WHITE,DARKGREY);
- _xFont->tft->drawChar(40,170,'2',WHITE,DARKGREY);
-  _xFont->tft->drawChar(80,170,':',WHITE,DARKGREY);
-   _xFont->tft->drawChar(120,170,'2',WHITE,DARKGREY);
-    _xFont->tft->drawChar(160,170,'0',WHITE,DARKGREY);
-      _xFont->tft->drawChar(200,170,':',WHITE,DARKGREY);
-         _xFont->tft->drawChar(240,170,'5',WHITE,DARKGREY);
-    _xFont->tft->drawChar(280,170,'0',WHITE,DARKGREY);
+  _xFont->tft->drawRect(0, 164, 320, 71, WHITE);
+  _xFont->tft->fillRect(0, 164, 320, 71, DARKGREY);
+  _xFont->tft->setTextSize(6);
+  _xFont->tft->drawChar(1, 170, '2', WHITE, DARKGREY);
+  _xFont->tft->drawChar(40, 170, '2', WHITE, DARKGREY);
+  _xFont->tft->drawChar(80, 170, ':', WHITE, DARKGREY);
+  _xFont->tft->drawChar(120, 170, '2', WHITE, DARKGREY);
+  _xFont->tft->drawChar(160, 170, '0', WHITE, DARKGREY);
+  _xFont->tft->drawChar(200, 170, ':', WHITE, DARKGREY);
+  _xFont->tft->drawChar(240, 170, '5', WHITE, DARKGREY);
+  _xFont->tft->drawChar(280, 170, '0', WHITE, DARKGREY);
   // _xFont->tft->en
-//  _xFont->tft->drawEllipse(0,164,320,71,WHITE);
+  //  _xFont->tft->drawEllipse(0,164,320,71,WHITE);
   // _xFont->DrawChineseEx(10, 169, "书山有路勤为径", c);
   // _xFont->DrawChineseEx(10, 206, "学海无涯苦作舟", c);
 
@@ -54,7 +54,6 @@ void setup()
   // delete _xFont;
 
   Serial.printf("销毁后剩余内存: %.3f k \n", ESP.getFreeHeap() / 1024.0);
- 
 }
 
 void loop()
