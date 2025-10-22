@@ -89,12 +89,39 @@ def getMaxCharLength(fontSize,binType):
     # 不论是16进制的8位还是32进制的10位,都是双数返回
     # print(hexAmount*2,total)
     return hexAmount*2,total    
+
+def detect_content_boundary(img, pos, fontSize):
+    """
+    检测字符内容的边界，用于居中处理
+    """
+    # 获取字符的有效内容区域
+    left, top, right, bottom = fontSize, fontSize, 0, 0
     
-def getPixsDataFromImg(img,pos,fontSize,maxfontchars,binType=32):
-    """从图像像素数据生成对应的字符编码集
+    for y in range(pos+1, pos+fontSize+1):
+        for x in range(pos, pos+fontSize):
+            dotpix = img.getpixel((x, y))
+            if dotpix == 1:  # 有内容的像素
+                if x < left:
+                    left = x
+                if x > right:
+                    right = x
+                if y < top:
+                    top = y
+                if y > bottom:
+                    bottom = y
+    
+    # 如果没有找到有效内容，返回整个区域
+    if left > right or top > bottom:
+        return pos, pos+fontSize-1, pos+1, pos+fontSize
+    
+    return left, right, top, bottom
+
+def getPixsDataFromImg(img,char,pos,fontSize,maxfontchars,binType=32):
+    """从图像像素数据生成对应的字符编码集，并对其中的汉字字符上下、左右居中特殊处理
 
     Args:
         img (Image): 图像文件
+        char (str): 当前处理的字符
         pos (int): 获取像素起始位置
         fontSize (int): 字号
         maxfontchars (int): 最大编码字符集长度
@@ -102,51 +129,55 @@ def getPixsDataFromImg(img,pos,fontSize,maxfontchars,binType=32):
 
     Returns:
         str: 像素编码字符串
-    """    
-    # ss用来直接显示
-    ss = ""
-    # chars表示原始像素数据
-    chars = ''
-    # linechars = ""
-    # hexChar = ""
-    # 从左到右，从上到下，交叉获取像素
-    for i in range(pos+1, pos+fontSize+1):
-        # for d in range(9,9+len(displatstr)*head_fontsize):
-        for d in range(pos, pos+fontSize):
-            dotpix = img.getpixel((d, i))
-            # print(dotpix)
-            if dotpix==1:
-                # img.getpixel()
-                ss += " 1"
-                chars += "1"
-            else:
-                ss += "  "
-                chars += "0"
-            
-        ss += "\r\n"
-    # print(chars,len(chars),maxfontchars)
-    chars=chars.ljust(maxfontchars,'0')
-    # for i in range(0,int(maxfontchars/8)):
-    #     linechars=chars[i*8:i*8+8]
-    #     # print(linechars)
-    #     hexChar += hex(int(linechars, 2)).removeprefix('0x').rjust(2, '0')
+    """
+    # 检测内容边界
+    left, right, top, bottom = detect_content_boundary(img, pos, fontSize)
+
+    # 计算偏移量
+    if '\u4e00' <= char <= '\u9fff': # 汉字字符上下、左右居中处理
+        offset_x = (fontSize - (right - left + 1)) // 2
+        offset_y = (fontSize - (bottom - top + 1)) // 2
+    else: # 其它不处理
+        offset_x = 0
+        offset_y = 0
+
+    # 创建新的像素数据
+    centered_ss = ['  '] * (fontSize * fontSize)
+    centered_chars = ['0'] * (fontSize * fontSize)
     
-    # hexchar2=hex(int(chars,2)).removeprefix('0x').rjust(int(maxfontchars/4), '0')
-    # if(hexchar2!=hexChar):
-    #     print(hexChar,hexchar2,hexchar2==hexChar)
-    #     print(ss)
-    # 下面这个chars是字符对应模的二进制字符串
+    # 像素复制
+    for y in range(top, bottom + 1):
+        for x in range(left, right + 1):
+            dst_y = offset_y + (y - top)
+            dst_x = offset_x + (x - left)
+            if 0 <= dst_x < fontSize and 0 <= dst_y < fontSize:
+                dst_idx = dst_y * fontSize + dst_x
+                dotpix = img.getpixel((x, y))
+                if dotpix == 1: 
+                    centered_ss[dst_idx] = ' 1'
+                    centered_chars[dst_idx] = '1'
+    
+	# 打印
+    '''
+    print(char)
+    for i in range(fontSize):
+        row = ''.join(centered_ss[i*fontSize : i*fontSize + fontSize])
+        print(row)
+    '''
+    
+    centered_chars = ''.join(centered_chars)
 
-    # print(chars,len(chars))
-    # print(ss)
-    # print(hexChar)
-
-    # 把对应的二进制编码字符集按照编码格式进行转化
-    chars32=convBinToChar(chars,binType)
-    if(len(chars32)%2==1):chars32+="0"
-    # print(chars32,len(chars32))
-    return chars32
-
+    # 补齐到最大长度
+    centered_chars = centered_chars.ljust(maxfontchars, '0')
+    
+    # 转换为目标进制
+    chars_encoded = convBinToChar(centered_chars, binType)
+    
+    # 确保长度为偶数
+    if len(chars_encoded) % 2 == 1:
+        chars_encoded += "0"
+        
+    return chars_encoded
 
 def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType=64):
     """创建字库
@@ -213,7 +244,7 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
             255, 255, 255), font=font, stroke_width=0)
         # im.save("d:/d321.bmp")
         # 从图像中解析像素并且转化成对应的编码数据集
-        charHex=str(getPixsDataFromImg(im,ypos,fontSize,max_fontchars,binType))
+        charHex=str(getPixsDataFromImg(im,s1,ypos,fontSize,max_fontchars,binType))
         # print(charHexLen,len(charHex),max_fontchars)
         str_pix_content += charHex
         draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
