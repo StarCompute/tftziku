@@ -97,7 +97,7 @@ def detect_content_boundary(img, pos, fontSize):
     # 获取字符的有效内容区域
     left, top, right, bottom = fontSize, fontSize, 0, 0
     
-    for y in range(pos+1, pos+fontSize+1):
+    for y in range(pos, pos+fontSize):
         for x in range(pos, pos+fontSize):
             dotpix = img.getpixel((x, y))
             if dotpix == 1:  # 有内容的像素
@@ -112,7 +112,7 @@ def detect_content_boundary(img, pos, fontSize):
     
     # 如果没有找到有效内容，返回整个区域
     if left > right or top > bottom:
-        return pos, pos+fontSize-1, pos+1, pos+fontSize
+        return pos, pos+fontSize-1, pos, pos+fontSize-1
     
     return left, right, top, bottom
 
@@ -147,13 +147,13 @@ def getPixsDataFromImg(img,char,pos,fontSize,maxfontchars,binType=32):
     
     # 像素复制
     for y in range(top, bottom + 1):
+        dst_y = offset_y + (y - top) if offset_y > 0 else y
         for x in range(left, right + 1):
-            dst_y = offset_y + (y - top)
-            dst_x = offset_x + (x - left)
+            dst_x = offset_x + (x - left) if offset_x > 0 else x
             if 0 <= dst_x < fontSize and 0 <= dst_y < fontSize:
                 dst_idx = dst_y * fontSize + dst_x
                 dotpix = img.getpixel((x, y))
-                if dotpix == 1: 
+                if dotpix == 1:
                     centered_ss[dst_idx] = ' 1'
                     centered_chars[dst_idx] = '1'
     
@@ -179,7 +179,7 @@ def getPixsDataFromImg(img,char,pos,fontSize,maxfontchars,binType=32):
         
     return chars_encoded
 
-def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType=64):
+def createFont(fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12, binType=64):
     """创建字库
 
     Args:
@@ -229,8 +229,7 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
     head_unicode_content = strlen_hex_fmt+head_fontsize_fmt+str(binType) + str_fmt
 
 
-    ypos=10
-    if(fontSize==16):ypos=9
+    pos=0
     # im = Image.new('RGB', (256, 256), (0, 0, 0))
     # 画图使用了P模式，避免了RGB导致的模糊影响
     im = Image.new(imgModel, (256, 256), (0, 0, 0))
@@ -240,11 +239,11 @@ def createFont( fontStr,imgModel="P", fontName="simsun.ttc", fontSize=12,binType
 
     print("开始创建字体，请等待：")
     for s1 in track(fontStr):
-        draw.text((10, 10), str(s1), fill=(
+        draw.text((pos, pos), str(s1), fill=(
             255, 255, 255), font=font, stroke_width=0)
         # im.save("d:/d321.bmp")
         # 从图像中解析像素并且转化成对应的编码数据集
-        charHex=str(getPixsDataFromImg(im,s1,ypos,fontSize,max_fontchars,binType))
+        charHex=str(getPixsDataFromImg(im,s1,pos,fontSize,max_fontchars,binType))
         # print(charHexLen,len(charHex),max_fontchars)
         str_pix_content += charHex
         draw.rectangle([0, 0, 100, 100], outline="black", fill="black")
